@@ -1,9 +1,9 @@
 from machine import Pin, PWM
 from utime import sleep
 
-def test_led_pwm():
-    led_pin = 28  # Pin 28 = GP28 (labelled 34 on the jumper)
-    led_PWM = PWM(Pin(28), 100)
+def test_pwm():
+    pwm_pin_no = 28  # Pin 28 = GP28 (labelled 34 on the jumper)
+    pwm_pin = PWM(Pin(pwm_pin_no), 100)
 
     level = 0  # 0-100
     direction = 1  # 1=up, -1=down
@@ -11,7 +11,7 @@ def test_led_pwm():
     while True:
         # PWM the LED
         u16_level = int(65535 * level / 100)
-        led_PWM.duty_u16(u16_level)
+        pwm_pin.duty_u16(u16_level)
     
         # update level and sleep
         print(f"Level={level}, u16_level={u16_level}, direction={direction}")
@@ -24,4 +24,4 @@ def test_led_pwm():
 
 
 if __name__ == "__main__":
-    test_led_pwm()
+    test_pwm()
