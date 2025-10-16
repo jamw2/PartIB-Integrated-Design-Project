@@ -9,7 +9,7 @@ def test_pwm():
     direction = 1  # 1=up, -1=down
 
     while True:
-        # PWM the LED
+        # PWM the specified pin
         u16_level = int(65535 * level / 100)
         pwm_pin.duty_u16(u16_level)
     
