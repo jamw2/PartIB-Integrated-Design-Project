@@ -1,3 +1,28 @@
+from test_motor import Motor
+motor3 = Motor(dirPin=4, PWMPin=5)
+motor4 = Motor(dirPin=6, PWMPin=7)
+
+def follow_line():
+    sensor2 = 
+    sensor3 = 
+    if sensor2:
+        motor4.off()
+        motor3.Forward()
+    if sensor3:
+        motor3.off()
+        motor4.Forward()
+
+def check_junction():
+    sensor1 =
+    sensor4 = 
+    if sensor1 and not sensor4:
+        return "L"
+    elif sensor1 and sensor4:
+        return "T"
+    elif not sensor1 and sensor4:
+        return "R"
+    
+    
 # LT - left at T junction
 # RT - right at T junction
 # SL - straight on when a branch appears on the left
