@@ -1,27 +1,47 @@
 from test_motor import Motor
+from machine import Pin
+
 motor3 = Motor(dirPin=4, PWMPin=5)
 motor4 = Motor(dirPin=6, PWMPin=7)
+line_sensor1 = Pin(16, Pin.IN, Pin.PULL_DOWN)
+line_sensor2 = Pin(17, Pin.IN, Pin.PULL_DOWN)
+line_sensor3 = Pin(18, Pin.IN, Pin.PULL_DOWN)
+line_sensor4 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+reels = 0
+
 
 def follow_line():
-    sensor2 = 
-    sensor3 = 
+    sensor2 = line_sensor2.value()
+    sensor3 = line_sensor3.value()
     if sensor2:
         motor4.off()
         motor3.Forward()
     if sensor3:
         motor3.off()
         motor4.Forward()
+    motor3.off()
+    motor4.off()
 
 def check_junction():
-    sensor1 =
-    sensor4 = 
+    sensor1 = line_sensor1.value()
+    sensor4 = line_sensor4.value()
     if sensor1 and not sensor4:
         return "L"
     elif sensor1 and sensor4:
         return "T"
     elif not sensor1 and sensor4:
         return "R"
+    return False
     
+def navigate(route):
+    for inst in route:
+        junc = check_junction()
+        while check_junction == False:
+            follow_line()
+        match inst:
+            case "LT":
+                if junc == "T":
+                    
     
 # LT - left at T junction
 # RT - right at T junction
@@ -73,3 +93,10 @@ rackB_higher_bay1 = ["R","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"]
 rackB_higher_bay2 = ["R","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"]
 rackB_higher_bay3 = ["R","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"]
 rackB_higher_bay4 = ["R","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
+
+
+# main loop
+
+while True:
+    reels += 1
+    start_route
