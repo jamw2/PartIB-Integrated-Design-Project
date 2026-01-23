@@ -13,14 +13,15 @@ reels = 0
 def follow_line():
     sensor2 = line_sensor2.value()
     sensor3 = line_sensor3.value()
-    if sensor2:
+    if not sensor2 and not sensor3:
+        motor3.Forward()
+        motor4.Forward()
+    elif sensor2:
         motor4.off()
         motor3.Forward()
-    if sensor3:
+    else:
         motor3.off()
         motor4.Forward()
-    motor3.off()
-    motor4.off()
 
 def check_junction():
     sensor1 = line_sensor1.value()
@@ -38,6 +39,8 @@ def navigate(route):
         junc = check_junction()
         while check_junction == False:
             follow_line()
+        motor3.off()
+        motor4.off()
         match inst:
             case "LT":
                 if junc == "T":
