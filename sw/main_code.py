@@ -1,5 +1,6 @@
 from test_motor import Motor
 from machine import Pin
+from utime import sleep
 
 motor3 = Motor(dirPin=4, PWMPin=5)
 motor4 = Motor(dirPin=6, PWMPin=7)
@@ -33,18 +34,74 @@ def check_junction():
     elif not sensor1 and sensor4:
         return "R"
     return False
-    
+
+def turn_left(time):
+    motor3.off()
+    motor4.Forward()
+    sleep(time)
+    motor4.off()
+
+def turn_right(time):
+    motor3.Forward()
+    motor4.off()
+    sleep(time)
+    motor3.off()
+
+def drive_forward(time):
+    motor3.Forward()
+    motor4.Forward()
+    sleep(time)
+
+
 def navigate(route):
     for inst in route:
-        junc = check_junction()
-        while check_junction == False:
-            follow_line()
-        motor3.off()
-        motor4.off()
-        match inst:
-            case "LT":
-                if junc == "T":
-                    
+        success = False
+        i = 0
+
+        while not success:
+            junc = check_junction()
+            while junc == False:
+                if i % 100 == 0:
+                    junc = check_junction()
+                follow_line()
+                i += 1
+            motor3.off()
+            motor4.off()
+
+            match inst:
+                case "LT":
+                    if junc == "T":
+                        turn_left(1)
+                        success = True
+                case "RT":
+                    if junc == "T":
+                        turn_right(1)
+                        success = True
+                case "SL":
+                    if junc == "L":
+                        drive_forward(0.4)
+                        success = True
+                case "SR":
+                    if junc == "R":
+                        drive_forward(0.4)
+                        success = True
+                case "L":
+                    if junc == "L":
+                        turn_left(1)
+                        success = True
+                case "R":
+                    if junc == "R":
+                        turn_right(1)
+                        success = True
+                case "ST":
+                    if junc == "T":
+                        motor3.off()
+                        motor4.off()
+                        success = True
+                case "SC":
+                    if junc == "T":
+                        drive_forward(0.4)
+                        success = True
     
 # LT - left at T junction
 # RT - right at T junction
