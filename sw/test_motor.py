@@ -20,17 +20,20 @@ class Motor:
         self.pwm.duty_u16(int(65535 * speed / 100))
 
 
-def test_motor3():
+def test_motor():
     motor3 = Motor(dirPin=4, PWMPin=5)  # Motor 3 is controlled from Motor Driv2 #1, which is on GP4/5
+    motor4 = Motor(dirPin=7, PWMPin=6)
 
     while True:
         print("Forward")
-        motor3.Forward()
+        #motor3.Forward()
+        motor4.Forward()
         sleep(1)
         print("Reverse")
-        motor3.Reverse()
+        #motor3.Reverse()
+        motor4.Reverse()
         sleep(1)
 
 
 if __name__ == "__main__":
-    test_motor3()
+    test_motor()
