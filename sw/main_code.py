@@ -15,6 +15,7 @@ yellow_led = Pin(14, Pin.OUT)
 adc_pin = 28
 adc = ADC(Pin(adc_pin))
 reels = 0
+bay = 0
 time_constant = 1 # time to rotate 90 degrees at 50% power
 
 
@@ -149,54 +150,20 @@ routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","RT"],["SR"],["
 [["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","RT"],["LT","RT"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","LT"],["RT","SR","SR","LT"]],
 [["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","RT"],["LT","SL","SL","RT"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","LT"],["RT","LT"]],
 [["SL","SL","SL","SL","SL","SL","SL","SC","L","RT"],["L","SL","SL","SL","RT"],["SL","SL","SL","SL","SL","SL","SL","SC","L","LT"],["SL"]]]
-routes_to_bays = [[],[],[],[]]
 
-bay1_rackA_lower = ["SR"]
-bay1_rackA_higher = ["SR","SR","SR","SR","SR","SR","SR","SC","R","RT"]
-bay1_rackB_lower = ["R","SR","SR","SR","LT"]
-bay1_rackB_higher = ["SR","SR","SR","SR","SR","SR","SR","SC","R","LT"]
-
-bay2_rackA_lower = ["LT","RT"]
-bay2_rackA_higher = ["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","RT"]
-bay2_rackB_lower = ["RT","SR","SR","LT"]
-bay2_rackB_higher = ["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","LT"]
-
-bay3_rackA_lower = ["LT","SL","SL","RT"]
-bay3_rackA_higher = ["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","RT"]
-bay3_rackB_lower = ["RT","LT"]
-bay3_rackB_higher = ["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","LT"]
-
-bay4_rackA_lower = ["L","SL","SL","SL","RT"]
-bay4_rackA_higher = ["SL","SL","SL","SL","SL","SL","SL","SC","L","RT"]
-bay4_rackB_lower = ["SL"]
-bay4_rackB_higher = ["SL","SL","SL","SL","SL","SL","SL","SC","L","LT"]
-
-rackA_lower_bay1 = ["SL","ST"]
-rackA_lower_bay2 = ["L","R","ST"]
-rackA_lower_bay3 = ["L","SR","SR","R","ST"]
-rackA_lower_bay4 = ["L","SR","SR","SR","R","ST"]
-
-rackA_higher_bay1 = ["L","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"]
-rackA_higher_bay2 = ["L","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"]
-rackA_higher_bay3 = ["L","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"]
-rackA_higher_bay4 = ["L","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
-
-rackB_lower_bay1 = ["R","SL","SL","SL","LT","ST"]
-rackB_lower_bay2 = ["R","SL","SL","L","ST"]
-rackB_lower_bay3 = ["R","L","ST"]
-rackB_lower_bay4 = ["SR","ST"]
-
-rackB_higher_bay1 = ["R","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"]
-rackB_higher_bay2 = ["R","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"]
-rackB_higher_bay3 = ["R","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"]
-rackB_higher_bay4 = ["R","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
-
+routes_to_bays = [[["SL","ST"],["L","R","ST"],["L","SR","SR","R","ST"],["L","SR","SR","SR","R","ST"]],
+[["L","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["L","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
+],
+[["R","SL","SL","SL","LT","ST"],["R","SL","SL","L","ST"],["R","L","ST"],["SR","ST"]],
+[["R","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["R","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["R","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["R","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]]]
 
 # main loop
 
 while True:
     reels += 1
-    drive_forward(1)
+    drive_forward(time_constant)
     navigate(start_route)
     rack_location = read_reel()
     navigate(routes_to_racks[bay][rack_location])
+    
+    navigate(routes_to_bays[rack_location][bay])
