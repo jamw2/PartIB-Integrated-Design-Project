@@ -159,4 +159,5 @@ rackB_higher_bay4 = ["R","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
 
 while True:
     reels += 1
-    start_route
+    drive_forward(1)
+    navigate(start_route)
