@@ -94,8 +94,8 @@ def test_TMF8x01_get_distance():
     '''
 
     if device == "TMF8701":
-      tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.ePROXIMITY)
-      #tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eCOMBINE)
+      #tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.ePROXIMITY)
+      tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eCOMBINE)
       #tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eDISTANCE)
     elif device == "TMF8801":
       tof.start_measurement(calib_m = tof.eMODE_NO_CALIB)
