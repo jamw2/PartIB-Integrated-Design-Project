@@ -17,7 +17,7 @@ print("Welcome to main.py!")
 # test_led()
 # test_pwm()
 # test_input_poll()
-test_motor()
+#test_motor()
 # test_tcs3472()
 # test_actuator1()
 # test_vl53l0x()
@@ -28,3 +28,13 @@ test_motor()
 # test_tiny_code_reader()
 
 print("main.py Done!")
+
+from main_code import drive_forward, navigate
+
+time_constant = 1 # time to rotate 90 degrees at 50% power
+
+route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
+
+drive_forward(time_constant)
+navigate(route)
+drive_forward(time_constant)

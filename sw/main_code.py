@@ -5,12 +5,12 @@ from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
 
 # Set up distance sensors
-i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-tof.begin()
-vl53l0 = VL53L0X(i2c_bus)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+#i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+#tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+#tof.begin()
+#vl53l0 = VL53L0X(i2c_bus)
+#vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+#vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -109,50 +109,49 @@ def navigate(route):
             motor3.off()
             motor4.off()
 
-            match inst:
-                case "LT":
-                    if junc == "T":
-                        turn_left(time_constant)
-                        success = True
-                case "RT":
-                    if junc == "T":
-                        turn_right(time_constant)
-                        success = True
-                case "SL":
-                    if junc == "L":
-                        drive_forward(time_constant*0.4)
-                        success = True
-                case "SR":
-                    if junc == "R":
-                        drive_forward(time_constant*0.4)
-                        success = True
-                case "L":
-                    if junc == "L":
-                        turn_left(time_constant)
-                        success = True
-                case "R":
-                    if junc == "R":
-                        turn_right(time_constant)
-                        success = True
-                case "ST":
-                    if junc == "T":
-                        motor3.off()
-                        motor4.off()
-                        success = True
-                case "SC":
-                    if junc == "T":
-                        drive_forward(time_constant*0.4)
-                        success = True
-                case "STL":
-                    if junc == "L":
-                        motor3.off()
-                        motor4.off()
-                        success = True
-                case "STR":
-                    if junc == "R":
-                        motor3.off()
-                        motor4.off()
-                        success = True
+            if inst == "LT":
+                if junc == "T":
+                    turn_left(time_constant)
+                    success = True
+            if inst == "RT":
+                if junc == "T":
+                    turn_right(time_constant)
+                    success = True
+            if inst == "SL":
+                if junc == "L":
+                    drive_forward(time_constant*0.4)
+                    success = True
+            if inst == "SR":
+                if junc == "R":
+                    drive_forward(time_constant*0.4)
+                    success = True
+            if inst == "L":
+                if junc == "L":
+                    turn_left(time_constant)
+                    success = True
+            if inst == "R":
+                if junc == "R":
+                    turn_right(time_constant)
+                    success = True
+            if inst == "ST":
+                if junc == "T":
+                    motor3.off()
+                    motor4.off()
+                    success = True
+            if inst == "SC":
+                if junc == "T":
+                    drive_forward(time_constant*0.4)
+                    success = True
+            if inst == "STL":
+                if junc == "L":
+                    motor3.off()
+                    motor4.off()
+                    success = True
+            if inst == "STR":
+                if junc == "R":
+                    motor3.off()
+                    motor4.off()
+                    success = True
 
 # rackA upper = 0
 # rackA lower = 1
@@ -174,22 +173,22 @@ def read_reel():
     yellow_led.value(1)
     return 3
 
-def find_empty(rack):
-    position = 1
-    while True:
-        if rack == 0 or rack == 3:
-            tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eCOMBINE)
-            if tof.is_data_ready() == True:
-                dist = tof.get_distance_mm()
-            inst = "STL"
-        else:
-            vl53l0.start()
-            dist = vl53l0.read()
-            inst = "STR"
-        if dist < 200:
-            return position
-        navigate(inst)
-        position += 1
+# def find_empty(rack):
+#     position = 1
+#     while True:
+#         if rack == 0 or rack == 3:
+#             tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eCOMBINE)
+#             if tof.is_data_ready() == True:
+#                 dist = tof.get_distance_mm()
+#             inst = "STL"
+#         else:
+#             vl53l0.start()
+#             dist = vl53l0.read()
+#             inst = "STR"
+#         if dist < 200:
+#             return position
+#         navigate(inst)
+#         position += 1
 
 def place_reel(rack):
     return
@@ -230,14 +229,14 @@ routes_to_bays = [[["SL","ST"],["L","R","ST"],["L","SR","SR","R","ST"],["L","SR"
 
 # main loop
 
-while True:
-    reels += 1
-    drive_forward(time_constant)
-    navigate(start_route)
-    rack_location = read_reel()
-    navigate(routes_to_racks[bay][rack_location])
-    num_steps_to_backtrack = find_empty(rack_location)
-    place_reel(rack_location)
-    turn_left(4*time_constant)
-    #navigate()
-    navigate(routes_to_bays[rack_location][bay])
+# while True:
+#     reels += 1
+#     drive_forward(time_constant)
+#     navigate(start_route)
+#     rack_location = read_reel()
+#     navigate(routes_to_racks[bay][rack_location])
+#     num_steps_to_backtrack = find_empty(rack_location)
+#     place_reel(rack_location)
+#     turn_left(4*time_constant)
+#     #navigate()
+#     navigate(routes_to_bays[rack_location][bay])
