@@ -1,19 +1,38 @@
 from test_motor import Motor
-from machine import ADC, Pin
+from machine import ADC, Pin, I2C
+from libs.VL53L0X.VL53L0X import VL53L0X
+from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
 
+# Set up distance sensors
+i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+tof.begin()
+vl53l0 = VL53L0X(i2c_bus)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+
+# Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
 motor4 = Motor(dirPin=7, PWMPin=6)
+
+# Set up line sensors
 line_sensor1 = Pin(16, Pin.IN, Pin.PULL_DOWN)
 line_sensor2 = Pin(17, Pin.IN, Pin.PULL_DOWN)
 line_sensor3 = Pin(18, Pin.IN, Pin.PULL_DOWN)
 line_sensor4 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+
+# Set up LEDs
 blue_led = Pin(10, Pin.OUT)
 green_led = Pin(11, Pin.OUT)
 red_led = Pin(12, Pin.OUT)
 yellow_led = Pin(14, Pin.OUT)
+
+# Set up ADC
 adc_pin = 28
 adc = ADC(Pin(adc_pin))
+
+# Global variables for the algorithms
 reels = 0
 bay = 0
 time_constant = 1 # time to rotate 90 degrees at 50% power
@@ -54,6 +73,20 @@ def turn_right(time):
     motor4.off()
     sleep(time)
     motor3.off()
+
+def rotate_left(time):
+    motor3.Reverse()
+    motor4.Forward()
+    sleep(time)
+    motor3.off()
+    motor4.off()
+
+def rotate_right(time):
+    motor3.Forward()
+    motor4.Reverse()
+    sleep(time)
+    motor3.off()
+    motor4.off()
 
 def drive_forward(time):
     motor3.Forward()
@@ -110,11 +143,22 @@ def navigate(route):
                     if junc == "T":
                         drive_forward(time_constant*0.4)
                         success = True
+                case "STL":
+                    if junc == "L":
+                        motor3.off()
+                        motor4.off()
+                        success = True
+                case "STR":
+                    if junc == "R":
+                        motor3.off()
+                        motor4.off()
+                        success = True
 
 # rackA upper = 0
 # rackA lower = 1
 # rackB upper = 2
 # rackB lower = 3
+
 def read_reel():
     adc_value = adc.read_u16()
     scaled_voltage = adc_value / 65535
@@ -130,6 +174,26 @@ def read_reel():
     yellow_led.value(1)
     return 3
 
+def find_empty(rack):
+    position = 1
+    while True:
+        if rack == 0 or rack == 3:
+            tof.start_measurement(calib_m = tof.eMODE_NO_CALIB, mode = tof.eCOMBINE)
+            if tof.is_data_ready() == True:
+                dist = tof.get_distance_mm()
+            inst = "STL"
+        else:
+            vl53l0.start()
+            dist = vl53l0.read()
+            inst = "STR"
+        if dist < 200:
+            return position
+        navigate(inst)
+        position += 1
+
+def place_reel(rack):
+    return
+
 # LT - left at T junction
 # RT - right at T junction
 # SL - straight on when a branch appears on the left
@@ -138,18 +202,25 @@ def read_reel():
 # R - right at a branch
 # ST - stop at T junction
 # SC - straight on at crossroads
+# STL - stop at a branch on the left
+# STR - stop at a branch on the right
 
 # bay1 = 0
 # bay2 = 1
 # bay3 = 2
 # bay4 = 3
 
+# rackA upper = 0
+# rackA lower = 1
+# rackB upper = 2
+# rackB lower = 3
+
 start_route = ["LT","SL","LT","ST"]
 
-routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","RT"],["SR"],["SR","SR","SR","SR","SR","SR","SR","SC","R","LT"],["R","SR","SR","SR","LT"]],
-[["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","RT"],["LT","RT"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","LT"],["RT","SR","SR","LT"]],
-[["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","RT"],["LT","SL","SL","RT"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","LT"],["RT","LT"]],
-[["SL","SL","SL","SL","SL","SL","SL","SC","L","RT"],["L","SL","SL","SL","RT"],["SL","SL","SL","SL","SL","SL","SL","SC","L","LT"],["SL"]]]
+routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","RT","STL"],["SR","STR"],["SR","SR","SR","SR","SR","SR","SR","SC","R","LT","STR"],["R","SR","SR","SR","LT","STL"]],
+[["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","RT","STL"],["LT","RT","STR"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","LT","STR"],["RT","SR","SR","LT","STL"]],
+[["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","RT","STL"],["LT","SL","SL","RT","STR"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","LT","STR"],["RT","LT","STL"]],
+[["SL","SL","SL","SL","SL","SL","SL","SC","L","RT","STL"],["L","SL","SL","SL","RT","STR"],["SL","SL","SL","SL","SL","SL","SL","SC","L","LT","STR"],["SL","STL"]]]
 
 routes_to_bays = [[["SL","ST"],["L","R","ST"],["L","SR","SR","R","ST"],["L","SR","SR","SR","R","ST"]],
 [["L","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["L","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
@@ -165,5 +236,8 @@ while True:
     navigate(start_route)
     rack_location = read_reel()
     navigate(routes_to_racks[bay][rack_location])
-    
+    num_steps_to_backtrack = find_empty(rack_location)
+    place_reel(rack_location)
+    turn_left(4*time_constant)
+    #navigate()
     navigate(routes_to_bays[rack_location][bay])
