@@ -11,13 +11,22 @@ from test_STU_22L_IO_Mode import test_STU_22L_IO_Mode
 from test_STU_22L_UART import test_STU_22L_UART
 from test_tiny_code_reader import test_tiny_code_reader
 
+from netlog import wlan_connect, UDPLogger
+
+wlan_connect("Eduroam Never Works", "iNeedWifi")
+log = UDPLogger("10.29.50.253", 9000)
+
+log.log("starting test")
+# use log.log(...) inside your loop
+
+
 print("Welcome to main.py!")
 
 # Uncomment the test to run
 # test_led()
 # test_pwm()
 # test_input_poll()
-#test_motor()
+# test_motor()
 # test_tcs3472()
 # test_actuator1()
 # test_vl53l0x()
