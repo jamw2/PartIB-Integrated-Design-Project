@@ -41,10 +41,10 @@ time_constant = 1 # time to rotate 90 degrees at 50% power
 def follow_line():
     sensor2 = line_sensor2.value()
     sensor3 = line_sensor3.value()
-    if not sensor2 and not sensor3:
+    if sensor2 and sensor3:
         motor3.Forward()
         motor4.Forward()
-    elif sensor2:
+    elif not sensor2:
         motor4.off()
         motor3.Forward()
     else:
@@ -108,7 +108,7 @@ def navigate(route):
                 i += 1
             motor3.off()
             motor4.off()
-
+            print(inst, junc)
             if inst == "LT":
                 if junc == "T":
                     turn_left(time_constant)
