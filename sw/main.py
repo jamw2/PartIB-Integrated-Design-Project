@@ -17,6 +17,7 @@ wlan_connect("Eduroam Never Works", "iNeedWifi")
 log = UDPLogger("10.29.50.253", 9000)
 
 log.log("starting test")
+
 # use log.log(...) inside your loop
 
 
