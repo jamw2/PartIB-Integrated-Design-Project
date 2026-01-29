@@ -13,10 +13,10 @@ from test_tiny_code_reader import test_tiny_code_reader
 
 from netlog import wlan_connect, UDPLogger
 
-wlan_connect("Eduroam Never Works", "iNeedWifi")
-log = UDPLogger("10.29.50.253", 9000)
+#wlan_connect("Eduroam Never Works", "iNeedWifi")
+#log = UDPLogger("10.29.50.253", 9000)
 
-log.log("starting test")
+#log.log("starting test")
 # use log.log(...) inside your loop
 
 
@@ -42,9 +42,9 @@ from main_code import drive_forward, navigate, turn_left
 
 time_constant = 2 # time to rotate 90 degrees at 50% power
 
-turn_left(time_constant)
-#route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
+#turn_left(time_constant)
+route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
 
-#drive_forward(time_constant)
-#navigate(route)
-#drive_forward(time_constant)
+drive_forward(time_constant)
+navigate(route)
+drive_forward(time_constant)

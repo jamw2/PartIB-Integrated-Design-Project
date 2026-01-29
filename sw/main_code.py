@@ -3,6 +3,11 @@ from machine import ADC, Pin, I2C
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
+from netlog import UDPLogger, wlan_connect
+
+
+wlan_connect("Eduroam Never Works", "iNeedWifi")
+log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
 #i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
@@ -35,7 +40,7 @@ adc = ADC(Pin(adc_pin))
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 1 # time to rotate 90 degrees at 50% power
+time_constant = 2.5 # time to rotate 90 degrees at 50% power
 
 
 def follow_line():
@@ -108,7 +113,7 @@ def navigate(route):
                 i += 1
             motor3.off()
             motor4.off()
-            print(inst, junc)
+            log.log(f"{inst}, {junc}")
             if inst == "LT":
                 if junc == "T":
                     turn_left(time_constant)
