@@ -1,17 +1,17 @@
-from test_led import test_led
-from test_pwm import test_pwm
-from test_input import test_input_poll
-from test_motor import test_motor
-from test_linear_actuator import test_actuator1
-from test_tcs3472 import test_tcs3472
-from test_vl53l0x import test_vl53l0x
-from test_mfrc522 import test_mfrc522
-from test_TMF8x01_get_distance import test_TMF8x01_get_distance
-from test_STU_22L_IO_Mode import test_STU_22L_IO_Mode
-from test_STU_22L_UART import test_STU_22L_UART
-from test_tiny_code_reader import test_tiny_code_reader
+# from test_led import test_led
+# from test_pwm import test_pwm
+# from test_input import test_input_poll
+# from test_motor import test_motor
+# from test_linear_actuator import test_actuator1
+# from test_tcs3472 import test_tcs3472
+# from test_vl53l0x import test_vl53l0x
+# from test_mfrc522 import test_mfrc522
+# from test_TMF8x01_get_distance import test_TMF8x01_get_distance
+# from test_STU_22L_IO_Mode import test_STU_22L_IO_Mode
+# from test_STU_22L_UART import test_STU_22L_UART
+# from test_tiny_code_reader import test_tiny_code_reader
 
-from netlog import wlan_connect, UDPLogger
+# from netlog import wlan_connect, UDPLogger
 
 #wlan_connect("Eduroam Never Works", "iNeedWifi")
 #log = UDPLogger("10.29.50.253", 9000)
@@ -43,8 +43,9 @@ from main_code import drive_forward, navigate, turn_left
 time_constant = 2 # time to rotate 90 degrees at 50% power
 
 #turn_left(time_constant)
-route = ["SC","LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","R","SR","R","SC","SL","SL","SL","SL","SL","SL","R","SL","L","ST"]
-
+route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","R","SR","R","SC","SL","SL","SL","SL","SL","SL","R","SL","L","ST"]
+print("start")
 drive_forward(time_constant)
+print("started")
 navigate(route)
 drive_forward(time_constant)
