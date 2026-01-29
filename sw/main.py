@@ -43,7 +43,7 @@ from main_code import drive_forward, navigate, turn_left
 time_constant = 2 # time to rotate 90 degrees at 50% power
 
 #turn_left(time_constant)
-route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
+route = ["SC","LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","R","SR","R","SC","SL","SL","SL","SL","SL","SL","R","SL","L","ST"]
 
 drive_forward(time_constant)
 navigate(route)

@@ -82,14 +82,14 @@ def turn_right(time):
 def rotate_left(time):
     motor3.Reverse()
     motor4.Forward()
-    sleep(time)
+    sleep(time/2)
     motor3.off()
     motor4.off()
 
 def rotate_right(time):
     motor3.Forward()
     motor4.Reverse()
-    sleep(time)
+    sleep(time/2)
     motor3.off()
     motor4.off()
 
@@ -97,6 +97,8 @@ def drive_forward(time):
     motor3.Forward()
     motor4.Forward()
     sleep(time)
+    motor3.off()
+    motor4.off()
 
 
 def navigate(route):
@@ -109,6 +111,11 @@ def navigate(route):
             while junc == False:
                 if i % 100 == 0:
                     junc = check_junction()
+                    if junc == "L" or junc == "R":
+                        drive_forward(time_constant*0.1)
+                        junc2 = check_junction()
+                        if junc2 == "T":
+                            junc = "T"
                 follow_line()
                 i += 1
             motor3.off()
@@ -118,41 +125,41 @@ def navigate(route):
                 if junc == "T":
                     turn_left(time_constant)
                     success = True
-            if inst == "RT":
+            elif inst == "RT":
                 if junc == "T":
                     turn_right(time_constant)
                     success = True
-            if inst == "SL":
+            elif inst == "SL":
                 if junc == "L":
                     drive_forward(time_constant*0.4)
                     success = True
-            if inst == "SR":
+            elif inst == "SR":
                 if junc == "R":
                     drive_forward(time_constant*0.4)
                     success = True
-            if inst == "L":
+            elif inst == "L":
                 if junc == "L":
                     turn_left(time_constant)
                     success = True
-            if inst == "R":
+            elif inst == "R":
                 if junc == "R":
                     turn_right(time_constant)
                     success = True
-            if inst == "ST":
+            elif inst == "ST":
                 if junc == "T":
                     motor3.off()
                     motor4.off()
                     success = True
-            if inst == "SC":
+            elif inst == "SC":
                 if junc == "T":
                     drive_forward(time_constant*0.4)
                     success = True
-            if inst == "STL":
+            elif inst == "STL":
                 if junc == "L":
                     motor3.off()
                     motor4.off()
                     success = True
-            if inst == "STR":
+            elif inst == "STR":
                 if junc == "R":
                     motor3.off()
                     motor4.off()
@@ -219,18 +226,17 @@ def place_reel(rack):
 # rackB upper = 2
 # rackB lower = 3
 
-start_route = ["LT","SL","LT","ST"]
+start_route = ["SC","LT","SL","LT","ST"]
 
-routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","RT","STL"],["SR","STR"],["SR","SR","SR","SR","SR","SR","SR","SC","R","LT","STR"],["R","SR","SR","SR","LT","STL"]],
-[["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","RT","STL"],["LT","RT","STR"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","LT","STR"],["RT","SR","SR","LT","STL"]],
-[["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","RT","STL"],["LT","SL","SL","RT","STR"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","LT","STR"],["RT","LT","STL"]],
-[["SL","SL","SL","SL","SL","SL","SL","SC","L","RT","STL"],["L","SL","SL","SL","RT","STR"],["SL","SL","SL","SL","SL","SL","SL","SC","L","LT","STR"],["SL","STL"]]]
+routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","R","RT","R","STL"],["SR","STR"],["SR","SR","SR","SR","SR","SR","SR","SC","R","R","LT","L","STR"],["R","SR","SR","SR","LT","STL"]],
+[["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","R","RT","R","STL"],["LT","RT","STR"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","R","LT","L","STR"],["RT","SR","SR","LT","STL"]],
+[["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","L","RT","R","STL"],["LT","SL","SL","RT","STR"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","L","LT","L","STR"],["RT","LT","STL"]],
+[["SL","SL","SL","SL","SL","SL","SL","SC","L","L","RT","R","STL"],["L","SL","SL","SL","RT","STR"],["SL","SL","SL","SL","SL","SL","SL","SC","L","L","LT","L","STR"],["SL","STL"]]]
 
 routes_to_bays = [[["SL","ST"],["L","R","ST"],["L","SR","SR","R","ST"],["L","SR","SR","SR","R","ST"]],
-[["L","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["L","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["L","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]
-],
+[["L","L","LT","L","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["L","L","LT","L","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["L","L","RT","R","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["L","L","RT","R","SC","SR","SR","SR","SR","SR","SR","SR","ST"]],
 [["R","SL","SL","SL","LT","ST"],["R","SL","SL","L","ST"],["R","L","ST"],["SR","ST"]],
-[["R","LT","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["R","LT","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["R","RT","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["R","RT","SC","SR","SR","SR","SR","SR","SR","SR","ST"]]]
+[["R","R","LT","L","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["R","R","LT","L","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["R","R","RT","R","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["R","R","RT","R","SC","SR","SR","SR","SR","SR","SR","SR","ST"]]]
 
 # main loop
 
