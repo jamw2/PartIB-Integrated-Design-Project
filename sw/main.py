@@ -40,7 +40,7 @@ print("Welcome to main.py!")
 
 from main_code import drive_forward, navigate, turn_left
 
-time_constant = 2.5 # time to rotate 90 degrees at 50% power
+time_constant = 2 # time to rotate 90 degrees at 50% power
 
 #turn_left(time_constant)
 route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","R","SR","R","SC","SL","SL","SL","SL","SL","SL","R","SL","L","ST"]
