@@ -10,7 +10,8 @@ def wlan_connect(ssid, password, timeout_s=10):
         t0 = time.ticks_ms()
         while not wlan.isconnected():
             if time.ticks_diff(time.ticks_ms(), t0) > timeout_s * 1000:
-                raise RuntimeError("Wi-Fi connect timeout")
+                # raise RuntimeError("Wi-Fi connect timeout")
+                return
             time.sleep(0.1)
     return wlan
 
