@@ -27,14 +27,15 @@ print("Welcome to main.py!")
 # test_STU_22L_UART()
 # test_tiny_code_reader()
 
-print("main.py Done!")
+#print("main.py Done!")
 
-from main_code import drive_forward, navigate
+from main_code import drive_forward, navigate, turn_left
 
-time_constant = 1 # time to rotate 90 degrees at 50% power
+time_constant = 2 # time to rotate 90 degrees at 50% power
 
-route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
+turn_left(time_constant)
+#route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
 
-drive_forward(time_constant)
-navigate(route)
-drive_forward(time_constant)
+#drive_forward(time_constant)
+#navigate(route)
+#drive_forward(time_constant)
