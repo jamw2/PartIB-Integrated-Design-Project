@@ -11,13 +11,22 @@ from test_STU_22L_IO_Mode import test_STU_22L_IO_Mode
 from test_STU_22L_UART import test_STU_22L_UART
 from test_tiny_code_reader import test_tiny_code_reader
 
+from netlog import wlan_connect, UDPLogger
+
+wlan_connect("Eduroam Never Works", "iNeedWifi")
+log = UDPLogger("10.29.50.253", 9000)
+
+log.log("starting test")
+# use log.log(...) inside your loop
+
+
 print("Welcome to main.py!")
 
 # Uncomment the test to run
 # test_led()
 # test_pwm()
 # test_input_poll()
-#test_motor()
+# test_motor()
 # test_tcs3472()
 # test_actuator1()
 # test_vl53l0x()
@@ -31,9 +40,32 @@ print("main.py Done!")
 
 from main_code import drive_forward, navigate
 
-time_constant = 1 # time to rotate 90 degrees at 50% power
+time_constant = 1  # time to rotate 90 degrees at 50% power
 
-route = ["LT","SL","RT","SR","SR","SR","SR","SR","SR","SC","SR","SC","SL","SL","SL","SL","SL","SL","R","SL","R","ST"]
+route = [
+    "LT",
+    "SL",
+    "RT",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SC",
+    "SR",
+    "SC",
+    "SL",
+    "SL",
+    "SL",
+    "SL",
+    "SL",
+    "SL",
+    "R",
+    "SL",
+    "R",
+    "ST",
+]
 
 drive_forward(time_constant)
 navigate(route)
