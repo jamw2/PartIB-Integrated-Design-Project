@@ -3,19 +3,19 @@ from machine import ADC, Pin, I2C
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
-#from netlog import UDPLogger, wlan_connect
+from netlog import UDPLogger, wlan_connect
 
 
-#wlan_connect("Eduroam Never Works", "iNeedWifi")
-#log = UDPLogger("10.29.50.253", 9000)
+wlan_connect("Eduroam Never Works", "iNeedWifi")
+log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
-#i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-#tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-#tof.begin()
-#vl53l0 = VL53L0X(i2c_bus)
-#vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-#vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+# tof.begin()
+# vl53l0 = VL53L0X(i2c_bus)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -36,11 +36,13 @@ yellow_led = Pin(14, Pin.OUT)
 # Set up ADC
 adc_pin = 28
 adc = ADC(Pin(adc_pin))
+us_pin = 26
+us = ADC(Pin(us_pin))
 
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 2.5 # time to rotate 90 degrees at 100% power
+time_constant = 2.5  # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
@@ -56,6 +58,7 @@ def follow_line():
         motor3.off()
         motor4.Forward()
 
+
 def check_junction():
     sensor1 = line_sensor1.value()
     sensor4 = line_sensor4.value()
@@ -67,11 +70,13 @@ def check_junction():
         return "R"
     return False
 
+
 def turn_left(time):
     motor3.off()
     motor4.Forward()
     sleep(time)
     motor4.off()
+
 
 def turn_right(time):
     motor3.Forward()
@@ -79,19 +84,22 @@ def turn_right(time):
     sleep(time)
     motor3.off()
 
+
 def rotate_left(time):
     motor3.Reverse()
     motor4.Forward()
-    sleep(time/2)
+    sleep(time / 2)
     motor3.off()
     motor4.off()
+
 
 def rotate_right(time):
     motor3.Forward()
     motor4.Reverse()
-    sleep(time/2)
+    sleep(time / 2)
     motor3.off()
     motor4.off()
+
 
 def drive_forward(time):
     motor3.Forward()
@@ -112,7 +120,7 @@ def navigate(route):
                 if i % 50 == 0:
                     junc = check_junction()
                     if junc == "L" or junc == "R":
-                        drive_forward(time_constant*0.2)
+                        drive_forward(time_constant * 0.2)
                         junc2 = check_junction()
                         if junc2 == "T":
                             junc = "T"
@@ -121,7 +129,8 @@ def navigate(route):
             motor3.off()
             motor4.off()
             print(inst, junc)
-            #log.log(f"{inst}, {junc}")
+            us_val = read_us()
+            log.log(f"{inst}, {junc}, {us_val}")
             if inst == "LT":
                 if junc == "T":
                     turn_left(time_constant)
@@ -132,11 +141,11 @@ def navigate(route):
                     success = True
             elif inst == "SL":
                 if junc == "L":
-                    drive_forward(time_constant*0.4)
+                    drive_forward(time_constant * 0.4)
                     success = True
             elif inst == "SR":
                 if junc == "R":
-                    drive_forward(time_constant*0.4)
+                    drive_forward(time_constant * 0.4)
                     success = True
             elif inst == "L":
                 if junc == "L":
@@ -153,7 +162,7 @@ def navigate(route):
                     success = True
             elif inst == "SC":
                 if junc == "T":
-                    drive_forward(time_constant*0.4)
+                    drive_forward(time_constant * 0.4)
                     success = True
             elif inst == "STL":
                 if junc == "L":
@@ -166,10 +175,17 @@ def navigate(route):
                     motor4.off()
                     success = True
 
+
 # rackA upper = 0
 # rackA lower = 1
 # rackB upper = 2
 # rackB lower = 3
+
+
+def read_us():
+    us_value = us.read_u16()
+    return us_value
+
 
 def read_reel():
     adc_value = adc.read_u16()
@@ -185,6 +201,7 @@ def read_reel():
         return 2
     yellow_led.value(1)
     return 3
+
 
 # def find_empty(rack):
 #     position = 1
@@ -203,8 +220,10 @@ def read_reel():
 #         navigate(inst)
 #         position += 1
 
+
 def place_reel(rack):
     return
+
 
 # LT - left at T junction
 # RT - right at T junction
@@ -227,17 +246,121 @@ def place_reel(rack):
 # rackB upper = 2
 # rackB lower = 3
 
-start_route = ["SC","LT","SL","LT","ST"]
+start_route = ["SC", "LT", "SL", "LT", "ST"]
 
-routes_to_racks = [[["SR","SR","SR","SR","SR","SR","SR","SC","R","R","RT","R","STL"],["SR","STR"],["SR","SR","SR","SR","SR","SR","SR","SC","R","R","LT","L","STR"],["R","SR","SR","SR","LT","STL"]],
-[["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","R","RT","R","STL"],["LT","RT","STR"],["LT","RT","SR","SR","SR","SR","SR","SR","SC","R","R","LT","L","STR"],["RT","SR","SR","LT","STL"]],
-[["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","L","RT","R","STL"],["LT","SL","SL","RT","STR"],["RT","RT","SL","SL","SL","SL","SL","SL","SC","L","L","LT","L","STR"],["RT","LT","STL"]],
-[["SL","SL","SL","SL","SL","SL","SL","SC","L","L","RT","R","STL"],["L","SL","SL","SL","RT","STR"],["SL","SL","SL","SL","SL","SL","SL","SC","L","L","LT","L","STR"],["SL","STL"]]]
+routes_to_racks = [
+    [
+        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SC", "R", "R", "RT", "R", "STL"],
+        ["SR", "STR"],
+        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SC", "R", "R", "LT", "L", "STR"],
+        ["R", "SR", "SR", "SR", "LT", "STL"],
+    ],
+    [
+        [
+            "LT",
+            "RT",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SC",
+            "R",
+            "R",
+            "RT",
+            "R",
+            "STL",
+        ],
+        ["LT", "RT", "STR"],
+        [
+            "LT",
+            "RT",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SC",
+            "R",
+            "R",
+            "LT",
+            "L",
+            "STR",
+        ],
+        ["RT", "SR", "SR", "LT", "STL"],
+    ],
+    [
+        [
+            "RT",
+            "RT",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SC",
+            "L",
+            "L",
+            "RT",
+            "R",
+            "STL",
+        ],
+        ["LT", "SL", "SL", "RT", "STR"],
+        [
+            "RT",
+            "RT",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SC",
+            "L",
+            "L",
+            "LT",
+            "L",
+            "STR",
+        ],
+        ["RT", "LT", "STL"],
+    ],
+    [
+        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SC", "L", "L", "RT", "R", "STL"],
+        ["L", "SL", "SL", "SL", "RT", "STR"],
+        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SC", "L", "L", "LT", "L", "STR"],
+        ["SL", "STL"],
+    ],
+]
 
-routes_to_bays = [[["SL","ST"],["L","R","ST"],["L","SR","SR","R","ST"],["L","SR","SR","SR","R","ST"]],
-[["L","L","LT","L","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["L","L","LT","L","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["L","L","RT","R","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["L","L","RT","R","SC","SR","SR","SR","SR","SR","SR","SR","ST"]],
-[["R","SL","SL","SL","LT","ST"],["R","SL","SL","L","ST"],["R","L","ST"],["SR","ST"]],
-[["R","R","LT","L","SC","SL","SL","SL","SL","SL","SL","SL","ST"],["R","R","LT","L","SC","SR","SL","SL","SL","SL","SL","L","R","ST"],["R","R","RT","R","SC","SR","SR","SR","SR","SR","SR","R","L","ST"],["R","R","RT","R","SC","SR","SR","SR","SR","SR","SR","SR","ST"]]]
+routes_to_bays = [
+    [
+        ["SL", "ST"],
+        ["L", "R", "ST"],
+        ["L", "SR", "SR", "R", "ST"],
+        ["L", "SR", "SR", "SR", "R", "ST"],
+    ],
+    [
+        ["L", "L", "LT", "L", "SC", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "ST"],
+        ["L", "L", "LT", "L", "SC", "SR", "SL", "SL", "SL", "SL", "SL", "L", "R", "ST"],
+        ["L", "L", "RT", "R", "SC", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "ST"],
+        ["L", "L", "RT", "R", "SC", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "ST"],
+    ],
+    [
+        ["R", "SL", "SL", "SL", "LT", "ST"],
+        ["R", "SL", "SL", "L", "ST"],
+        ["R", "L", "ST"],
+        ["SR", "ST"],
+    ],
+    [
+        ["R", "R", "LT", "L", "SC", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "ST"],
+        ["R", "R", "LT", "L", "SC", "SR", "SL", "SL", "SL", "SL", "SL", "L", "R", "ST"],
+        ["R", "R", "RT", "R", "SC", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "ST"],
+        ["R", "R", "RT", "R", "SC", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "ST"],
+    ],
+]
 
 # main loop
 

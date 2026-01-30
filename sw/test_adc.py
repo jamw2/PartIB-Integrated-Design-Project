@@ -4,7 +4,7 @@ from utime import sleep
 
 def test():
     # Set the LED pin and configuration
-    adc_pin = 28
+    adc_pin = 26
     adc = ADC(Pin(adc_pin))
 
     # Continiously update the LED value and print said value
@@ -14,3 +14,6 @@ def test():
         # print distance in mm
         print(dist)
         sleep(1)
+
+
+test()
