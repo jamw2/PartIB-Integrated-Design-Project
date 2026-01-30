@@ -6,8 +6,8 @@ from utime import sleep
 from netlog import UDPLogger, wlan_connect
 
 
-wlan_connect("Eduroam Never Works", "iNeedWifi")
-log = UDPLogger("10.29.50.253", 9000)
+# wlan_connect("Eduroam Never Works", "iNeedWifi")
+# log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
 # i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
@@ -119,6 +119,8 @@ def navigate(route):
             while junc == False:
                 if i % 50 == 0:
                     junc = check_junction()
+                    us_val = read_us()
+                    # log.log(f"{inst}, {junc}, {us_val}")
                     if junc == "L" or junc == "R":
                         drive_forward(time_constant * 0.2)
                         junc2 = check_junction()
@@ -129,8 +131,7 @@ def navigate(route):
             motor3.off()
             motor4.off()
             print(inst, junc)
-            us_val = read_us()
-            log.log(f"{inst}, {junc}, {us_val}")
+
             if inst == "LT":
                 if junc == "T":
                     turn_left(time_constant)
