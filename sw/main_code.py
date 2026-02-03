@@ -3,19 +3,24 @@ from machine import ADC, Pin, I2C
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
-from netlog import UDPLogger, wlan_connect
+
+# from netlog import UDPLogger, wlan_connect
+from motors import turn_left, turn_right, rotate_left, rotate_right, drive_forward
 
 
-# wlan_connect("Eduroam Never Works", "iNeedWifi")
-# log = UDPLogger("10.29.50.253", 9000)
+def unused():
+    # wlan_connect("Eduroam Never Works", "iNeedWifi")
+    # log = UDPLogger("10.29.50.253", 9000)
 
-# Set up distance sensors
-# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-# tof.begin()
-# vl53l0 = VL53L0X(i2c_bus)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+    # Set up distance sensors
+    # i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+    # tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+    # tof.begin()
+    # vl53l0 = VL53L0X(i2c_bus)
+    # vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+    # vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+    return
+
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -52,11 +57,14 @@ def follow_line():
         motor3.Forward()
         motor4.Forward()
     elif not sensor2:
-        motor4.off()
-        motor3.Forward()
+        motor4.Forward(30)
+        motor3.Forward(70)
+    elif not sensor3:
+        motor3.Forward(30)
+        motor4.Forward(70)
     else:
-        motor3.off()
-        motor4.Forward()
+        motor3.Forward()
+        motor4.Reverse()
 
 
 def check_junction():
@@ -69,44 +77,6 @@ def check_junction():
     elif not sensor1 and sensor4:
         return "R"
     return False
-
-
-def turn_left(time):
-    motor3.off()
-    motor4.Forward()
-    sleep(time)
-    motor4.off()
-
-
-def turn_right(time):
-    motor3.Forward()
-    motor4.off()
-    sleep(time)
-    motor3.off()
-
-
-def rotate_left(time):
-    motor3.Reverse()
-    motor4.Forward()
-    sleep(time / 2)
-    motor3.off()
-    motor4.off()
-
-
-def rotate_right(time):
-    motor3.Forward()
-    motor4.Reverse()
-    sleep(time / 2)
-    motor3.off()
-    motor4.off()
-
-
-def drive_forward(time):
-    motor3.Forward()
-    motor4.Forward()
-    sleep(time)
-    motor3.off()
-    motor4.off()
 
 
 def navigate(route):
@@ -122,11 +92,12 @@ def navigate(route):
                     us_val = read_us()
                     # log.log(f"{inst}, {junc}, {us_val}")
                     if junc == "L" or junc == "R":
-                        drive_forward(time_constant * 0.2)
+                        drive_forward(time_constant * 0.1)
                         junc2 = check_junction()
                         if junc2 == "T":
                             junc = "T"
-                follow_line()
+                            continue
+                    follow_line()
                 i += 1
             motor3.off()
             motor4.off()

@@ -2,7 +2,7 @@ from main_code import drive_forward, navigate, turn_left, turn_right
 
 
 time_constant = 2  # time to rotate 90 degrees at 50% power
-drive_forward(time_constant)
+# drive_forward(time_constant)
 # turn_left(time_constant)
 route = [
     "SC",
