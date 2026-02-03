@@ -22,10 +22,10 @@ motor3 = Motor(dirPin=4, PWMPin=5)
 motor4 = Motor(dirPin=7, PWMPin=6)
 
 # Set up line sensors
-line_sensor1 = Pin(16, Pin.IN, Pin.PULL_DOWN)
-line_sensor2 = Pin(17, Pin.IN, Pin.PULL_DOWN)
-line_sensor3 = Pin(18, Pin.IN, Pin.PULL_DOWN)
-line_sensor4 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+line_sensor1 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+line_sensor2 = Pin(18, Pin.IN, Pin.PULL_DOWN)
+line_sensor3 = Pin(17, Pin.IN, Pin.PULL_DOWN)
+line_sensor4 = Pin(16, Pin.IN, Pin.PULL_DOWN)
 
 # Set up LEDs
 blue_led = Pin(10, Pin.OUT)
@@ -40,7 +40,7 @@ adc = ADC(Pin(adc_pin))
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 2.5 # time to rotate 90 degrees at 100% power
+time_constant = 3.5 # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
@@ -111,11 +111,11 @@ def navigate(route):
             while junc == False:
                 if i % 50 == 0:
                     junc = check_junction()
-                    if junc == "L" or junc == "R":
-                        drive_forward(time_constant*0.2)
-                        junc2 = check_junction()
-                        if junc2 == "T":
-                            junc = "T"
+                    #if junc == "L" or junc == "R":
+                        #drive_forward(time_constant*0.2)
+                        #junc2 = check_junction()
+                        #if junc2 == "T":
+                            #junc = "T"
                 follow_line()
                 i += 1
             motor3.off()
