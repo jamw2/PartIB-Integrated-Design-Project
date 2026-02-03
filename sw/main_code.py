@@ -27,10 +27,10 @@ motor3 = Motor(dirPin=4, PWMPin=5)
 motor4 = Motor(dirPin=7, PWMPin=6)
 
 # Set up line sensors
-line_sensor1 = Pin(16, Pin.IN, Pin.PULL_DOWN)
-line_sensor2 = Pin(17, Pin.IN, Pin.PULL_DOWN)
-line_sensor3 = Pin(18, Pin.IN, Pin.PULL_DOWN)
-line_sensor4 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+line_sensor1 = Pin(19, Pin.IN, Pin.PULL_DOWN)
+line_sensor2 = Pin(18, Pin.IN, Pin.PULL_DOWN)
+line_sensor3 = Pin(17, Pin.IN, Pin.PULL_DOWN)
+line_sensor4 = Pin(16, Pin.IN, Pin.PULL_DOWN)
 
 # Set up LEDs
 blue_led = Pin(10, Pin.OUT)
@@ -50,6 +50,22 @@ bay = 0
 time_constant = 2.5  # time to rotate 90 degrees at 100% power
 
 
+def turn_left_new():
+    sensor4 = line_sensor4.value()
+    while not sensor4:
+        turn_left(0.1)
+        sensor4 = line_sensor4.value()
+    turn_right(0.2)
+
+
+def turn_right_new():
+    sensor1 = line_sensor1.value()
+    while not sensor1:
+        turn_right(0.1)
+        sensor1 = line_sensor1.value()
+    turn_left(0.2)
+
+
 def follow_line():
     sensor2 = line_sensor2.value()
     sensor3 = line_sensor3.value()
@@ -57,10 +73,10 @@ def follow_line():
         motor3.Forward()
         motor4.Forward()
     elif not sensor2:
-        motor4.Forward(30)
+        motor4.Forward(0)
         motor3.Forward(70)
     elif not sensor3:
-        motor3.Forward(30)
+        motor3.Forward(0)
         motor4.Forward(70)
     else:
         motor3.Forward()
@@ -105,11 +121,11 @@ def navigate(route):
 
             if inst == "LT":
                 if junc == "T":
-                    turn_left(time_constant)
+                    turn_left_new()
                     success = True
             elif inst == "RT":
                 if junc == "T":
-                    turn_right(time_constant)
+                    turn_right_new()
                     success = True
             elif inst == "SL":
                 if junc == "L":
@@ -121,11 +137,11 @@ def navigate(route):
                     success = True
             elif inst == "L":
                 if junc == "L":
-                    turn_left(time_constant)
+                    turn_left_new()
                     success = True
             elif inst == "R":
                 if junc == "R":
-                    turn_right(time_constant)
+                    turn_right_new()
                     success = True
             elif inst == "ST":
                 if junc == "T":

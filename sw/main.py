@@ -1,4 +1,4 @@
-from main_code import drive_forward, navigate, turn_left, turn_right
+from main_code import drive_forward, navigate, turn_left, turn_right, follow_line
 
 
 time_constant = 2  # time to rotate 90 degrees at 50% power
@@ -32,7 +32,9 @@ route = [
     "ST",
 ]
 print("start")
-drive_forward(time_constant)
-print("started")
-navigate(route)
-drive_forward(time_constant)
+# drive_forward(time_constant)
+# print("started")
+# navigate(route)
+# drive_forward(time_constant)
+while True:
+    follow_line()
