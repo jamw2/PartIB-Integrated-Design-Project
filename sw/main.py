@@ -40,7 +40,7 @@ print("Welcome to main.py!")
 
 import machine
 import micropython
-from main_code import drive_forward, navigate
+from main_code import drive_forward, navigate, turn_left
 from machine import Pin
 from utime import sleep, ticks_diff, ticks_ms
 
@@ -48,7 +48,7 @@ micropython.alloc_emergency_exception_buf(100)
 
 button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
-time_constant = 1.5  # time to rotate 90 degrees at 50% power
+time_constant = 1.5 / 2  # time to rotate 90 degrees at 50% power
 
 route = [
     "L",
@@ -74,7 +74,6 @@ route = [
     "R",
     "SL",
     "L",
-    "SL",
 ]
 
 _DEBOUNCE_MS = 250
@@ -112,6 +111,7 @@ while True:
         print("start")
         drive_forward(time_constant)
         navigate(route)
+        turn_left(0.4 * 2 / 2)
         drive_forward(time_constant)
         _running = False
         print("done")

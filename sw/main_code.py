@@ -43,7 +43,7 @@ us = ADC(Pin(us_pin))
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 2  # time to rotate 90 degrees at 100% power
+time_constant = 2 / 2  # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
@@ -53,10 +53,10 @@ def follow_line():
         motor3.Forward()
         motor4.Forward()
     elif not sensor2:
-        motor4.off()
+        motor4.Forward(30)
         motor3.Forward()
     else:
-        motor3.off()
+        motor3.Forward(30)
         motor4.Forward()
 
 
@@ -160,22 +160,22 @@ def navigate(route):
                     idx += 1
             elif inst == "L":
                 if junc == "L":
-                    turn_left(time_constant * 0.7)
+                    turn_left(time_constant * 0.5)
                     motor4.Forward()
-                    while not line_sensor4:
+                    while not line_sensor4.value():
                         continue
                     motor4.off()
-                    turn_left(time_constant * 0.1)
+                    turn_right(time_constant * 0.2)
                     success = True
                     idx += 1
             elif inst == "R":
                 if junc == "R":
-                    turn_right(time_constant * 0.7)
+                    turn_right(time_constant * 0.5)
                     motor3.Forward()
-                    while not line_sensor1:
+                    while not line_sensor1.value():
                         continue
                     motor3.off()
-                    turn_right(0.1 * time_constant)
+                    turn_left(time_constant * 0.2)
                     success = True
                     idx += 1
             elif inst == "ST":
