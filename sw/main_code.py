@@ -53,10 +53,10 @@ def follow_line():
         motor3.Forward()
         motor4.Forward()
     elif not sensor2:
-        motor4.Forward(30)
+        motor4.Forward(50)
         motor3.Forward()
     else:
-        motor3.Forward(30)
+        motor3.Forward(50)
         motor4.Forward()
 
 
