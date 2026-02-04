@@ -3,11 +3,12 @@ from machine import ADC, Pin, I2C
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep
-from netlog import UDPLogger, wlan_connect
+
+# from netlog import UDPLogger, wlan_connect
 
 
-wlan_connect("Eduroam Never Works", "iNeedWifi")
-log = UDPLogger("10.29.50.253", 9000)
+# wlan_connect("Eduroam Never Works", "iNeedWifi")
+# log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
 # i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
@@ -39,6 +40,10 @@ adc = ADC(Pin(adc_pin))
 us_pin = 26
 us = ADC(Pin(us_pin))
 
+# set up buttons
+button_pin = 22
+button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
+
 # Global variables for the algorithms
 reels = 0
 bay = 0
@@ -64,8 +69,8 @@ def check_junction():
     sensor4 = line_sensor4.value()
     if sensor1 and not sensor4:
         return "L"
-    elif sensor1 and sensor4:
-        return "T"
+    # elif sensor1 and sensor4:
+    #     return "T"
     elif not sensor1 and sensor4:
         return "R"
     return False
@@ -109,8 +114,15 @@ def drive_forward(time):
     motor4.off()
 
 
+# def navigate(route):
+#     for inst in route:
+#         success = False
+#         i = 0
 def navigate(route):
-    for inst in route:
+    running = False
+    idx = 0
+    while idx < len(route):
+        inst = route[idx]
         success = False
         i = 0
 
@@ -119,61 +131,80 @@ def navigate(route):
             while junc == False:
                 if i % 50 == 0:
                     junc = check_junction()
-                    if junc == "L" or junc == "R":
-                        drive_forward(time_constant * 0.2)
-                        junc2 = check_junction()
-                        if junc2 == "T":
-                            junc = "T"
-                follow_line()
+                    # if junc == "L" or junc == "R":
+                    #     drive_forward(time_constant * 0.2)
+                    #     junc2 = check_junction()
+                    #     if junc2 == "T":
+                    #         junc = "T"
+
+                if button.value():
+                    running = not running
+                    idx = 0
+
+                if running:
+                    follow_line()
+                else:
+                    motor3.off()
+                    motor4.off()
                 i += 1
             motor3.off()
             motor4.off()
-            print(inst, junc)
-            us_val = read_us()
-            log.log(f"{inst}, {junc}, {us_val}")
+            # print(inst, junc)
+            # us_val = read_us()
+            # log.log(f"{inst}, {junc}, {us_val}")
             if inst == "LT":
                 if junc == "T":
                     turn_left(time_constant)
                     success = True
+                    idx += 1
             elif inst == "RT":
                 if junc == "T":
                     turn_right(time_constant)
                     success = True
+                    idx += 1
             elif inst == "SL":
                 if junc == "L":
                     drive_forward(time_constant * 0.4)
                     success = True
+                    idx += 1
             elif inst == "SR":
                 if junc == "R":
                     drive_forward(time_constant * 0.4)
                     success = True
+                    idx += 1
             elif inst == "L":
                 if junc == "L":
                     turn_left(time_constant)
                     success = True
+                    idx += 1
             elif inst == "R":
                 if junc == "R":
                     turn_right(time_constant)
                     success = True
+                    idx += 1
             elif inst == "ST":
                 if junc == "T":
                     motor3.off()
                     motor4.off()
                     success = True
+                    idx += 1
             elif inst == "SC":
                 if junc == "T":
                     drive_forward(time_constant * 0.4)
                     success = True
+                    idx += 1
             elif inst == "STL":
                 if junc == "L":
                     motor3.off()
                     motor4.off()
                     success = True
+                    idx += 1
             elif inst == "STR":
                 if junc == "R":
                     motor3.off()
                     motor4.off()
                     success = True
+                    idx += 1
 
 
 # rackA upper = 0

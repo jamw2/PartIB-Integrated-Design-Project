@@ -13,10 +13,10 @@
 
 # from netlog import wlan_connect, UDPLogger
 
-#wlan_connect("Eduroam Never Works", "iNeedWifi")
-#log = UDPLogger("10.29.50.253", 9000)
+# wlan_connect("Eduroam Never Works", "iNeedWifi")
+# log = UDPLogger("10.29.50.253", 9000)
 
-#log.log("starting test")
+# log.log("starting test")
 # use log.log(...) inside your loop
 
 
@@ -36,16 +36,50 @@ print("Welcome to main.py!")
 # test_STU_22L_UART()
 # test_tiny_code_reader()
 
-#print("main.py Done!")
+# print("main.py Done!")
 
 from main_code import drive_forward, navigate, turn_left
+from machine import Pin
+from utime import sleep
 
-time_constant = 2 # time to rotate 90 degrees at 50% power
+button_pin = 22
+button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
+time_constant = 2.5  # time to rotate 90 degrees at 50% power
 
-#turn_left(time_constant)
-route = ["SL","R","SR","SR","SR","SR","SR","SR","SC","R","SR","R","SC","SR","SR","SR","SR","SR","SR","R","SL","L","ST"]
-print("start")
-drive_forward(time_constant)
-print("started")
-navigate(route)
-drive_forward(time_constant)
+# turn_left(time_constant)
+route = [
+    "SL",
+    "R",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "R",
+    "SR",
+    "R",
+    "SL",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "SR",
+    "R",
+    "SL",
+    "L",
+    "SL",
+]
+
+
+while True:
+    if button.value():
+        print("start")
+        drive_forward(time_constant)
+        print("started")
+        navigate(route)
+        drive_forward(time_constant)
+    else:
+        sleep(0.3)
