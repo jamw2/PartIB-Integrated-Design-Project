@@ -38,16 +38,20 @@ print("Welcome to main.py!")
 
 # print("main.py Done!")
 
-from main_code import drive_forward, navigate, turn_left
+import machine
+import micropython
+from main_code import drive_forward, navigate
 from machine import Pin
-from utime import sleep
+from utime import sleep, ticks_diff, ticks_ms
+
+micropython.alloc_emergency_exception_buf(100)
 
 button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
-time_constant = 2.5  # time to rotate 90 degrees at 50% power
+time_constant = 1.5  # time to rotate 90 degrees at 50% power
 
-# turn_left(time_constant)
 route = [
+    "L",
     "SL",
     "R",
     "SR",
@@ -73,13 +77,43 @@ route = [
     "SL",
 ]
 
+_DEBOUNCE_MS = 250
+_last_press_ms = 0
+_start_requested = False
+_running = False
+
+
+def _on_button_press_scheduled(_):
+    global _running, _start_requested
+    if _running:
+        print("reset")
+        sleep(0.05)
+        machine.reset()
+    else:
+        _start_requested = True
+
+
+def _on_button_irq(_pin):
+    global _last_press_ms
+    now = ticks_ms()
+    if ticks_diff(now, _last_press_ms) < _DEBOUNCE_MS:
+        return
+    _last_press_ms = now
+    micropython.schedule(_on_button_press_scheduled, 0)
+
+
+button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
+
 
 while True:
-    if button.value():
+    if _start_requested and not _running:
+        _start_requested = False
+        _running = True
         print("start")
         drive_forward(time_constant)
-        print("started")
         navigate(route)
         drive_forward(time_constant)
-    else:
-        sleep(0.3)
+        _running = False
+        print("done")
+
+    sleep(0.05)

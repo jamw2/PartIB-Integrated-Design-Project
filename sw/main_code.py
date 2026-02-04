@@ -40,14 +40,10 @@ adc = ADC(Pin(adc_pin))
 us_pin = 26
 us = ADC(Pin(us_pin))
 
-# set up buttons
-button_pin = 22
-button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
-
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 2.5  # time to rotate 90 degrees at 100% power
+time_constant = 2  # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
@@ -119,7 +115,6 @@ def drive_forward(time):
 #         success = False
 #         i = 0
 def navigate(route):
-    running = False
     idx = 0
     while idx < len(route):
         inst = route[idx]
@@ -136,20 +131,11 @@ def navigate(route):
                     #     junc2 = check_junction()
                     #     if junc2 == "T":
                     #         junc = "T"
-
-                if button.value():
-                    running = not running
-                    idx = 0
-
-                if running:
-                    follow_line()
-                else:
-                    motor3.off()
-                    motor4.off()
+                follow_line()
                 i += 1
             motor3.off()
             motor4.off()
-            # print(inst, junc)
+            print(inst, junc)
             # us_val = read_us()
             # log.log(f"{inst}, {junc}, {us_val}")
             if inst == "LT":
@@ -164,22 +150,32 @@ def navigate(route):
                     idx += 1
             elif inst == "SL":
                 if junc == "L":
-                    drive_forward(time_constant * 0.4)
+                    drive_forward(time_constant * 0.2)
                     success = True
                     idx += 1
             elif inst == "SR":
                 if junc == "R":
-                    drive_forward(time_constant * 0.4)
+                    drive_forward(time_constant * 0.2)
                     success = True
                     idx += 1
             elif inst == "L":
                 if junc == "L":
-                    turn_left(time_constant)
+                    turn_left(time_constant * 0.7)
+                    motor4.Forward()
+                    while not line_sensor4:
+                        continue
+                    motor4.off()
+                    turn_left(time_constant * 0.1)
                     success = True
                     idx += 1
             elif inst == "R":
                 if junc == "R":
-                    turn_right(time_constant)
+                    turn_right(time_constant * 0.7)
+                    motor3.Forward()
+                    while not line_sensor1:
+                        continue
+                    motor3.off()
+                    turn_right(0.1 * time_constant)
                     success = True
                     idx += 1
             elif inst == "ST":
@@ -205,6 +201,8 @@ def navigate(route):
                     motor4.off()
                     success = True
                     idx += 1
+            if not success:
+                drive_forward(0.1)
 
 
 # rackA upper = 0
