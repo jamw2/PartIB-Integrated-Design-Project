@@ -34,7 +34,7 @@ green_led = Pin(11, Pin.OUT)
 red_led = Pin(12, Pin.OUT)
 yellow_led = Pin(14, Pin.OUT)
 
-# Set up ADC
+# Set up ADC (for measuring reels)
 adc_pin = 28
 adc = ADC(Pin(adc_pin))
 us_pin = 26
@@ -43,30 +43,37 @@ us = ADC(Pin(us_pin))
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 2 / 2  # time to rotate 90 degrees at 100% power
+time_constant = 1 # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
+    # use the inner two line sensors
     sensor2 = line_sensor2.value()
     sensor3 = line_sensor3.value()
+    # go straight if both sensors see the line
     if sensor2 and sensor3:
         motor3.Forward()
         motor4.Forward()
+    # turn back to the line if it goes off to the left
     elif not sensor2:
         motor4.Forward(50)
         motor3.Forward()
+    # otherwise turn back to the line the other way
     else:
         motor3.Forward(50)
         motor4.Forward()
 
 
 def check_junction():
+    # use the outer two line sensors
     sensor1 = line_sensor1.value()
     sensor4 = line_sensor4.value()
+    # sense a junction on the left
     if sensor1 and not sensor4:
         return "L"
     # elif sensor1 and sensor4:
     #     return "T"
+    # sense a junction on the right
     elif not sensor1 and sensor4:
         return "R"
     return False
@@ -210,7 +217,7 @@ def navigate(route):
 # rackB upper = 2
 # rackB lower = 3
 
-
+# unscaled ultrasonic sensor reading
 def read_us():
     us_value = us.read_u16()
     return us_value
@@ -233,7 +240,7 @@ def read_reel():
     yellow_led.value(1)
     return 3
 
-
+"""
 def find_empty(rack):
     position = 1
     while True:
@@ -250,7 +257,7 @@ def find_empty(rack):
             return position
         navigate(inst)
         position += 1
-
+"""
 
 def place_reel(rack):
 
