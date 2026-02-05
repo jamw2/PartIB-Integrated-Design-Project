@@ -11,12 +11,12 @@ from utime import sleep
 # log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
-i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-tof.begin()
-vl53l0 = VL53L0X(i2c_bus)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+# tof.begin()
+# vl53l0 = VL53L0X(i2c_bus)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -219,13 +219,15 @@ def read_us():
 def read_reel():
     adc_value = adc.read_u16()
     scaled_voltage = adc_value / 65535
+    scaled_voltage = scaled_voltage / 0.72
+    print(f"{adc_value},{scaled_voltage}")
     if scaled_voltage < 0.1:
         blue_led.value(1)
         return 0
     elif scaled_voltage < 0.45:
         green_led.value(1)
         return 1
-    elif scaled_voltage < 0.85:
+    elif scaled_voltage < 0.94:
         red_led.value(1)
         return 2
     yellow_led.value(1)
@@ -251,6 +253,11 @@ def find_empty(rack):
 
 
 def place_reel(rack):
+
+    green_led.value(0)
+    yellow_led.value(0)
+    red_led.value(0)
+    blue_led.value(0)
     return
 
 
@@ -275,24 +282,85 @@ def place_reel(rack):
 # rackB upper = 2
 # rackB lower = 3
 
-start_route = ["L", "SL", "L","STL"]
+start_route = ["L", "SL", "L", "STL"]
 
 routes_to_racks = [
     [
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SC", "R", "R", "R", "R", "STL"],
         ["SR", "STR"],
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SC", "R", "R", "L", "L", "STR"],
-        ["R", "SR", "SR", "SR", "L", "STL"],],
+        ["R", "SR", "SR", "SR", "L", "STL"],
+    ],
     [
-        ["L","R","SR","SR","SR","SR","SR","SR","SC","R","R","R","R","STL",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SC",
+            "R",
+            "R",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "R", "STR"],
-        ["L","R","SR","SR","SR","SR","SR","SR","SC","R","R","L","L","STR",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SC",
+            "R",
+            "R",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "SR", "SR", "L", "STL"],
     ],
     [
-        ["R","R","SL","SL","SL","SL","SL","SL","SC","L","L","R","R","STL",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SC",
+            "L",
+            "L",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "SL", "SL", "R", "STR"],
-        ["R","R","SL","SL","SL","SL","SL","SL","SC","L","L","L","L","STR",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SC",
+            "L",
+            "L",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "L", "STL"],
     ],
     [
@@ -332,18 +400,18 @@ routes_to_bays = [
 
 # main loop
 
-while True:
-    reels += 1
-    drive_forward(time_constant)
-    navigate(start_route)
-    rack_location = read_reel()
-    navigate(routes_to_racks[bay][rack_location])
-    num_steps_to_backtrack = find_empty(rack_location)
-    place_reel(rack_location)
-    turn_left(2 * time_constant)
-    for i in range(num_steps_to_backtrack):
-        if rack_location == 0 or rack_location == 3:
-            navigate("STR")
-        else:
-            navigate("STL")
-    navigate(routes_to_bays[rack_location][bay])
+# while True:
+#     reels += 1
+#     drive_forward(time_constant)
+#     navigate(start_route)
+#     rack_location = read_reel()
+#     navigate(routes_to_racks[bay][rack_location])
+#     num_steps_to_backtrack = find_empty(rack_location)
+#     place_reel(rack_location)
+#     turn_left(2 * time_constant)
+#     for i in range(num_steps_to_backtrack):
+#         if rack_location == 0 or rack_location == 3:
+#             navigate("STR")
+#         else:
+#             navigate("STL")
+#     navigate(routes_to_bays[rack_location][bay])
