@@ -117,22 +117,16 @@ def drive_forward(time):
     motor4.off()
 
 
-# def navigate(route):
-#     for inst in route:
-#         success = False
-#         i = 0
 def navigate(route):
-    idx = 0
-    while idx < len(route):
-        inst = route[idx]
+    for inst in route:
         success = False
         i = 0
 
         while not success:
             junc = check_junction()
             while junc == False:
-                if i % 50 == 0:
-                    junc = check_junction()
+                #if i % 50 == 0:
+                junc = check_junction()
                     # if junc == "L" or junc == "R":
                     #     drive_forward(time_constant * 0.2)
                     #     junc2 = check_junction()
@@ -140,74 +134,50 @@ def navigate(route):
                     #         junc = "T"
                 follow_line()
                 i += 1
+            # turn off motors after following the line
             motor3.off()
             motor4.off()
             print(inst, junc)
             # us_val = read_us()
             # log.log(f"{inst}, {junc}, {us_val}")
-            if inst == "LT":
-                if junc == "T":
-                    turn_left(time_constant)
-                    success = True
-                    idx += 1
-            elif inst == "RT":
-                if junc == "T":
-                    turn_right(time_constant)
-                    success = True
-                    idx += 1
-            elif inst == "SL":
+            # turn left, right or go straight on depending on the instruction
+            if inst == "SL":
                 if junc == "L":
                     drive_forward(time_constant * 0.2)
                     success = True
-                    idx += 1
             elif inst == "SR":
                 if junc == "R":
                     drive_forward(time_constant * 0.2)
                     success = True
-                    idx += 1
             elif inst == "L":
                 if junc == "L":
                     turn_left(time_constant * 0.5)
                     motor4.Forward()
-                    while not line_sensor4.value():
+                    while not line_sensor3.value():
                         continue
                     motor4.off()
-                    turn_right(time_constant * 0.2)
+                    #turn_right(time_constant * 0.2)
                     success = True
-                    idx += 1
             elif inst == "R":
                 if junc == "R":
                     turn_right(time_constant * 0.5)
                     motor3.Forward()
-                    while not line_sensor1.value():
+                    while not line_sensor2.value():
                         continue
                     motor3.off()
-                    turn_left(time_constant * 0.2)
+                    #turn_left(time_constant * 0.2)
                     success = True
-                    idx += 1
-            elif inst == "ST":
-                if junc == "T":
-                    motor3.off()
-                    motor4.off()
-                    success = True
-                    idx += 1
-            elif inst == "SC":
-                if junc == "T":
-                    drive_forward(time_constant * 0.4)
-                    success = True
-                    idx += 1
             elif inst == "STL":
                 if junc == "L":
                     motor3.off()
                     motor4.off()
                     success = True
-                    idx += 1
             elif inst == "STR":
                 if junc == "R":
                     motor3.off()
                     motor4.off()
                     success = True
-                    idx += 1
+            # at a t junction the wrong line sensor may get there first so drive forwards a bit
             if not success:
                 drive_forward(0.1)
 
@@ -222,7 +192,7 @@ def read_us():
     us_value = us.read_u16()
     return us_value
 
-
+# work out which led to turn on and where to go
 def read_reel():
     adc_value = adc.read_u16()
     scaled_voltage = adc_value / 65535
