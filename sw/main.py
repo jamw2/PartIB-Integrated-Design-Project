@@ -101,12 +101,12 @@ def check_junction():
     sensor1 = line_sensor1.value()
     sensor4 = line_sensor4.value()
     # sense a junction on the left
-    if sensor1 and not sensor4:
+    if sensor1:
         return "L"
     # elif sensor1 and sensor4:
     #     return "T"
     # sense a junction on the right
-    elif not sensor1 and sensor4:
+    elif sensor4:
         return "R"
     return False
 
@@ -203,6 +203,7 @@ def navigate(route):
                 if junc == "L":
                     motor3.off()
                     motor4.off()
+                    print("Stopping")
                     success = True
             elif inst == "STR":
                 if junc == "R":
@@ -372,8 +373,21 @@ while True:
         drive_forward(time_constant)
 
         navigate(start_route)
+        rotate_left(time_constant * 2)
+        motor3.Reverse()
+        motor4.Forward()
+        while not line_sensor3.value():
+            continue
+        motor3.off()
+        motor4.off()
         navigate(routes_to_racks[0][0])
-        rotate_left(time_constant*2)
+        rotate_left(time_constant * 2)
+        motor3.Reverse()
+        motor4.Forward()
+        while not line_sensor3.value():
+            continue
+        motor3.off()
+        motor4.off()
         navigate(routes_to_bays[[0][1]])
         _running = False
         print("done")
