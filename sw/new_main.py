@@ -1,4 +1,4 @@
-from main_code import read_reel
+from main import read_reel
 from utime import sleep
 
 while True:

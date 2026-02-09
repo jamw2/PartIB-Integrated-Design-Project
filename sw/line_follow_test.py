@@ -1,5 +1,5 @@
 from utime import sleep
-from main_code import drive_forward, navigate
+from main import drive_forward, navigate
 
 time_constant = 1 # time to rotate 90 degrees at 50% power
 
