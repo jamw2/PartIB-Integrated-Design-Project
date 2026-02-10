@@ -43,13 +43,13 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 # wlan_connect("Eduroam Never Works", "iNeedWifi")
 # log = UDPLogger("10.29.50.253", 9000)
 
-# Set up distance sensors
-# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-# tof.begin()
-# vl53l0 = VL53L0X(i2c_bus)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+#Set up distance sensors
+i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+tof.begin()
+vl53l0 = VL53L0X(i2c_bus)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -76,6 +76,7 @@ us_pin = 26
 us = ADC(Pin(us_pin))
 
 # Set up PWM
+# servo1 is for lifting and servo2 is for grabbing
 servo1_pin = 13
 servo1 = PWM(Pin(servo1_pin))
 servo1.freq(50)
@@ -84,9 +85,8 @@ servo2 = PWM(Pin(servo2_pin))
 servo2.freq(50)
 
 # Global variables for the algorithms
-reels = 0
 bay = 0
-time_constant = 1  # time to rotate 90 degrees at 100% power
+time_constant = 1  # time to rotate 180 degrees at 100% power
 
 
 def follow_line():
@@ -126,6 +126,8 @@ def turn_left(time):
     motor3.off()
     motor4.Forward()
     sleep(time)
+    while not line_sensor3.value():
+        continue
     motor4.off()
 
 
@@ -133,13 +135,17 @@ def turn_right(time):
     motor3.Forward()
     motor4.off()
     sleep(time)
+    while not line_sensor2.value():
+        continue
     motor3.off()
 
 
 def rotate_left(time):
     motor3.Reverse()
     motor4.Forward()
-    sleep(time / 2)
+    sleep(time)
+    while not line_sensor3.value():
+        continue
     motor3.off()
     motor4.off()
 
@@ -147,7 +153,9 @@ def rotate_left(time):
 def rotate_right(time):
     motor3.Forward()
     motor4.Reverse()
-    sleep(time / 2)
+    sleep(time)
+    while not line_sensor3.value():
+        continue
     motor3.off()
     motor4.off()
 
@@ -155,6 +163,13 @@ def rotate_right(time):
 def drive_forward(time):
     motor3.Forward()
     motor4.Forward()
+    sleep(time)
+    motor3.off()
+    motor4.off()
+
+def reverse(time):
+    motor3.Reverse()
+    motor4.Reverse()
     sleep(time)
     motor3.off()
     motor4.off()
@@ -195,20 +210,10 @@ def navigate(route):
             elif inst == "L":
                 if junc == "L":
                     turn_left(time_constant * 0.5)
-                    motor4.Forward()
-                    while not line_sensor3.value():
-                        continue
-                    motor4.off()
-                    # turn_right(time_constant * 0.2)
                     success = True
             elif inst == "R":
                 if junc == "R":
                     turn_right(time_constant * 0.5)
-                    motor3.Forward()
-                    while not line_sensor2.value():
-                        continue
-                    motor3.off()
-                    # turn_left(time_constant * 0.2)
                     success = True
             elif inst == "STL":
                 if junc == "L":
@@ -256,37 +261,52 @@ def read_reel():
     yellow_led.value(1)
     return 3
 
+# Look for empty slots in the rack
+def find_empty(rack):
+    for position in range(1,7):
+        if rack == 0 or rack == 3:
+            tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
+            if tof.is_data_ready() == True:
+                dist = tof.get_distance_mm()
+            inst = "STL"
+        else:
+            vl53l0.start()
+            dist = vl53l0.read()
+            inst = "STR"
+        if dist > 200:
+            return position
+        drive_forward(time_constant*0.2)
+        navigate(inst)
+        position += 1
+    return position
 
-# def find_empty(rack):
-#     position = 1
-#     while True:
-#         if rack == 0 or rack == 3:
-#             tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
-#             if tof.is_data_ready() == True:
-#                 dist = tof.get_distance_mm()
-#             inst = "STL"
-#         else:
-#             vl53l0.start()
-#             dist = vl53l0.read()
-#             inst = "STR"
-#         if dist < 200:
-#             return position
-#         navigate(inst)
-#         position += 1
-
-
+# Lower arm and drive at reel to pick it up then grab it (servo positions are nominal)
 def pick_reel():
+    servo1.duty_u16(2000)
+    drive_forward(time_constant*0.5)
+    servo2.duty_u16(2000)
 
-    return
-
-
+# Place the reel by driving up to the rack (does not follow line because there is nowhere to stop - could fix with loop)
 def place_reel(rack):
+    if rack_location == 0 or rack_location == 3:
+        turn_left(time_constant*0.5)
+    else:
+        turn_right(time_constant*0.5)
+    
+    drive_forward(time_constant)
+    servo2.duty_u16(1500)
+    servo1.duty_u16(1500)
 
     green_led.value(0)
     yellow_led.value(0)
     red_led.value(0)
     blue_led.value(0)
-    return
+
+    reverse(time_constant)
+    if rack_location == 0 or rack_location == 3:
+        turn_left(time_constant*0.5)
+    else:
+        turn_right(time_constant*0.5)
 
 
 # LT - left at T junction
@@ -312,83 +332,23 @@ def place_reel(rack):
 
 start_route = ["L", "SL", "L", "STL"]
 
+# [bay][rack]
 routes_to_racks = [
     [
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "R", "R", "STL"],
         ["SR", "STR"],
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "L", "L", "STR"],
-        ["R", "SR", "SR", "SR", "L", "STL"],
-    ],
+        ["R", "SR", "SR", "SR", "L", "STL"],],
     [
-        [
-            "L",
-            "R",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "R",
-            "R",
-            "R",
-            "R",
-            "STL",
-        ],
+        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","R","R","STL",],
         ["L", "R", "STR"],
-        [
-            "L",
-            "R",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "SR",
-            "R",
-            "R",
-            "L",
-            "L",
-            "STR",
-        ],
+        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","L","L","STR",],
         ["R", "SR", "SR", "L", "STL"],
     ],
     [
-        [
-            "R",
-            "R",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "L",
-            "L",
-            "R",
-            "R",
-            "STL",
-        ],
+        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","R","R","STL",],
         ["L", "SL", "SL", "R", "STR"],
-        [
-            "R",
-            "R",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "SL",
-            "L",
-            "L",
-            "L",
-            "L",
-            "STR",
-        ],
+        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","L","L","STR",],
         ["R", "L", "STL"],
     ],
     [
@@ -399,6 +359,7 @@ routes_to_racks = [
     ],
 ]
 
+# [rack][bay]
 routes_to_bays = [
     [
         ["L", "L", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
@@ -428,48 +389,56 @@ routes_to_bays = [
 
 # main loop
 
-# while True:
-#     reels += 1
-#     drive_forward(time_constant)
-#     navigate(start_route)
-#     rack_location = read_reel()
-#     navigate(routes_to_racks[bay][rack_location])
-#     num_steps_to_backtrack = find_empty(rack_location)
-#     place_reel(rack_location)
-#     turn_left(2 * time_constant)
-#     for i in range(num_steps_to_backtrack):
-#         if rack_location == 0 or rack_location == 3:
-#             navigate("STR")
-#         else:
-#             navigate("STL")
-#     navigate(routes_to_bays[rack_location][bay])
-
 while True:
     if _start_requested and not _running:
         _start_requested = False
         _running = True
         print("start")
+
         drive_forward(time_constant)
 
         navigate(start_route)
-        pick_reel()
-        rotate_left(time_constant * 2)
-        motor3.Reverse()
-        motor4.Forward()
-        while not line_sensor3.value():
-            continue
-        motor3.off()
-        motor4.off()
-        navigate(routes_to_racks[0][0])
-        rotate_left(time_constant * 2)
-        motor3.Reverse()
-        motor4.Forward()
-        while not line_sensor3.value():
-            continue
-        motor3.off()
-        motor4.off()
-        navigate(routes_to_bays[[0][1]])
-        _running = False
-        print("done")
+        while True:
+            pick_reel() 
+            rack_location = read_reel()
+            reverse(time_constant*0.5)
+            rotate_left(time_constant)
 
+            navigate(routes_to_racks[bay][rack_location])
+
+            num_steps_to_backtrack = find_empty(rack_location)
+
+            place_reel(rack_location)
+            
+            for i in range(num_steps_to_backtrack):
+                drive_forward(time_constant*0.2)
+                if rack_location == 0 or rack_location == 3:
+                    navigate("SR")
+                else:
+                    navigate("SL")
+            bay = (bay + 1) % 4
+            navigate(routes_to_bays[rack_location][bay])
+            
     sleep(0.05)
+
+# testing navigation
+# while True:
+#     if _start_requested and not _running:
+#         _start_requested = False
+#         _running = True
+#         print("start")
+#         drive_forward(time_constant)
+
+#         navigate(start_route)
+#         pick_reel()
+#         rotate_left(time_constant)
+
+#         navigate(routes_to_racks[0][0])
+#         rotate_left(time_constant)
+#         motor3.Reverse()
+#         motor4.Forward()
+#         navigate(routes_to_bays[[0][1]])
+#         _running = False
+#         print("done")
+
+#     sleep(0.05)
