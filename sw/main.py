@@ -1,5 +1,5 @@
 from test_motor import Motor
-from machine import ADC, Pin, I2C
+from machine import ADC, Pin, I2C, PWM
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep, ticks_diff, ticks_ms
@@ -14,6 +14,7 @@ _DEBOUNCE_MS = 250
 _last_press_ms = 0
 _start_requested = False
 _running = False
+
 
 def _on_button_press_scheduled(_):
     global _running, _start_requested
@@ -69,13 +70,23 @@ yellow_led = Pin(14, Pin.OUT)
 # Set up ADC (for measuring reels)
 adc_pin = 28
 adc = ADC(Pin(adc_pin))
+servo_pin = 27
+servo = ADC(Pin(servo_pin))
 us_pin = 26
 us = ADC(Pin(us_pin))
+
+# Set up PWM
+servo1_pin = 13
+servo1 = PWM(Pin(servo1_pin))
+servo1.freq(50)
+servo2_pin = 15
+servo2 = PWM(Pin(servo2_pin))
+servo2.freq(50)
 
 # Global variables for the algorithms
 reels = 0
 bay = 0
-time_constant = 1 # time to rotate 90 degrees at 100% power
+time_constant = 1  # time to rotate 90 degrees at 100% power
 
 
 def follow_line():
@@ -157,13 +168,13 @@ def navigate(route):
         while not success:
             junc = check_junction()
             while junc == False:
-                #if i % 50 == 0:
+                # if i % 50 == 0:
                 junc = check_junction()
-                    # if junc == "L" or junc == "R":
-                    #     drive_forward(time_constant * 0.2)
-                    #     junc2 = check_junction()
-                    #     if junc2 == "T":
-                    #         junc = "T"
+                # if junc == "L" or junc == "R":
+                #     drive_forward(time_constant * 0.2)
+                #     junc2 = check_junction()
+                #     if junc2 == "T":
+                #         junc = "T"
                 follow_line()
                 i += 1
             # turn off motors after following the line
@@ -188,7 +199,7 @@ def navigate(route):
                     while not line_sensor3.value():
                         continue
                     motor4.off()
-                    #turn_right(time_constant * 0.2)
+                    # turn_right(time_constant * 0.2)
                     success = True
             elif inst == "R":
                 if junc == "R":
@@ -197,7 +208,7 @@ def navigate(route):
                     while not line_sensor2.value():
                         continue
                     motor3.off()
-                    #turn_left(time_constant * 0.2)
+                    # turn_left(time_constant * 0.2)
                     success = True
             elif inst == "STL":
                 if junc == "L":
@@ -220,10 +231,12 @@ def navigate(route):
 # rackB upper = 2
 # rackB lower = 3
 
+
 # unscaled ultrasonic sensor reading
 def read_us():
     us_value = us.read_u16()
     return us_value
+
 
 # work out which led to turn on and where to go
 def read_reel():
@@ -262,6 +275,11 @@ def read_reel():
 #         position += 1
 
 
+def pick_reel():
+
+    return
+
+
 def place_reel(rack):
 
     green_led.value(0)
@@ -292,24 +310,85 @@ def place_reel(rack):
 # rackB upper = 2
 # rackB lower = 3
 
-start_route = ["L", "SL", "L","STL"]
+start_route = ["L", "SL", "L", "STL"]
 
 routes_to_racks = [
     [
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "R", "R", "STL"],
         ["SR", "STR"],
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "L", "L", "STR"],
-        ["R", "SR", "SR", "SR", "L", "STL"],],
+        ["R", "SR", "SR", "SR", "L", "STL"],
+    ],
     [
-        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","R","R","STL",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "R",
+            "R",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "R", "STR"],
-        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","L","L","STR",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "R",
+            "R",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "SR", "SR", "L", "STL"],
     ],
     [
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","R","R","STL",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "L",
+            "L",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "SL", "SL", "R", "STR"],
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","L","L","STR",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "L",
+            "L",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "L", "STL"],
     ],
     [
@@ -373,6 +452,7 @@ while True:
         drive_forward(time_constant)
 
         navigate(start_route)
+        pick_reel()
         rotate_left(time_constant * 2)
         motor3.Reverse()
         motor4.Forward()
