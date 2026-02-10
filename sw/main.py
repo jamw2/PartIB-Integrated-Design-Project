@@ -75,18 +75,26 @@ servo = ADC(Pin(servo_pin))
 us_pin = 26
 us = ADC(Pin(us_pin))
 
-# Set up PWM
-servo1_pin = 13
-servo1 = PWM(Pin(servo1_pin))
-servo1.freq(50)
-servo2_pin = 15
-servo2 = PWM(Pin(servo2_pin))
-servo2.freq(50)
+# Set up PWM (servos)
+lift_pwm_pin = 13
+lift_pwm = PWM(Pin(lift_pwm_pin))
+lift_pwm.freq(50)
+grab_pwm_pin = 15
+grab_pwm = PWM(Pin(grab_pwm_pin))
+grab_pwm.freq(50)
 
 # Global variables for the algorithms
 reels = 0
 bay = 0
 time_constant = 1  # time to rotate 90 degrees at 100% power
+
+# Servo constans
+LIFT_DOWN_U16 = 0
+LIFT_UP_U16 = 0
+GRAB_OPEN_U16 = 0
+GRAB_CLOSED_U16 = 0
+PICK_SETTLE_S = 0.2
+PLACE_SETTLE_S = 0.2
 
 
 def follow_line():
@@ -276,16 +284,29 @@ def read_reel():
 
 
 def pick_reel():
-
+    print("pick_reel start")
+    lift_pwm.duty_u16(LIFT_DOWN_U16)
+    grab_pwm.duty_u16(GRAB_OPEN_U16)
+    sleep(PICK_SETTLE_S)
+    grab_pwm.duty_u16(GRAB_CLOSED_U16)
+    sleep(PICK_SETTLE_S)
+    lift_pwm.duty_u16(LIFT_UP_U16)
+    print("pick_reel done")
     return
 
 
 def place_reel(rack):
-
+    print(f"place_reel start: rack={rack}")
+    lift_pwm.duty_u16(LIFT_DOWN_U16)
+    sleep(PLACE_SETTLE_S)
+    grab_pwm.duty_u16(GRAB_OPEN_U16)
+    sleep(PLACE_SETTLE_S)
+    lift_pwm.duty_u16(LIFT_UP_U16)
     green_led.value(0)
     yellow_led.value(0)
     red_led.value(0)
     blue_led.value(0)
+    print("place_reel done")
     return
 
 
@@ -425,6 +446,14 @@ routes_to_bays = [
         ["SR", "STL"],
     ],
 ]
+
+
+def init_servo_positions():
+    lift_pwm.duty_u16(LIFT_UP_U16)
+    grab_pwm.duty_u16(GRAB_OPEN_U16)
+
+
+init_servo_positions()
 
 # main loop
 
