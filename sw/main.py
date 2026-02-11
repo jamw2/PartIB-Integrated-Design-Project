@@ -83,10 +83,10 @@ us = ADC(Pin(us_pin))
 
 # Set up PWM
 # servo1 is for lifting and servo2 is for grabbing
-servo1_pin = 13
+servo1_pin = 13  # level 15 down, 20 up
 servo1 = PWM(Pin(servo1_pin))
 servo1.freq(50)
-servo2_pin = 15
+servo2_pin = 15  # level 15 open, 20 closed
 servo2 = PWM(Pin(servo2_pin))
 servo2.freq(50)
 
@@ -289,15 +289,28 @@ def find_empty(rack):
     return position
 
 
+def lift():
+    servo1.duty_u16(int(16000 * 20 / 100))
+
+
+def lower():
+    servo1.duty_u16(int(16000 * 15 / 100))
+
+
+def open():
+    servo2.duty_u16(int(16000 * 15 / 100))
+
+
+def close():
+    servo2.duty_u16(int(16000 * 20 / 100))
+
+
 # Lower arm and drive at reel, pick it up then grab it (servo positions are nominal)
 def pick_reel():
-    u16_level1 = int(16000 * 15 / 100)  # level 15 down, 20 up
-    servo1.duty_u16(u16_level1)
+    lower()
     drive_forward(time_constant * 0.5)
-    u16_level1 = int(16000 * 20 / 100)
-    servo1.duty_u16(u16_level1)
-    u16_level2 = int(16000 * 20 / 100)  # level 15 open, 20 closed
-    servo2.duty_u16(u16_level2)
+    lift()
+    close()
 
 
 # Place the reel by driving up to the rack (does not follow line because there is nowhere to stop - could fix with loop)
@@ -308,8 +321,9 @@ def place_reel(rack):
         turn_right(time_constant * 0.5)
 
     drive_forward(time_constant)
-    servo2.duty_u16(1500)
-    servo1.duty_u16(1500)
+
+    open()
+    lower()
 
     green_led.value(0)
     yellow_led.value(0)
@@ -462,8 +476,11 @@ routes_to_bays = [
     ],
 ]
 
-# main loop
+# set up servo locations
+lift()
+open()
 
+# main loop
 while True:
     # wait for button
     if _start_requested and not _running:
