@@ -289,11 +289,15 @@ def find_empty(rack):
     return position
 
 
-# Lower arm and drive at reel to pick it up then grab it (servo positions are nominal)
+# Lower arm and drive at reel, pick it up then grab it (servo positions are nominal)
 def pick_reel():
-    servo1.duty_u16(2000)
+    u16_level1 = int(16000 * 15 / 100)  # level 15 down, 20 up
+    servo1.duty_u16(u16_level1)
     drive_forward(time_constant * 0.5)
-    servo2.duty_u16(2000)
+    u16_level1 = int(16000 * 20 / 100)
+    servo1.duty_u16(u16_level1)
+    u16_level2 = int(16000 * 20 / 100)  # level 15 open, 20 closed
+    servo2.duty_u16(u16_level2)
 
 
 # Place the reel by driving up to the rack (does not follow line because there is nowhere to stop - could fix with loop)
