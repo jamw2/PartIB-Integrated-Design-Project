@@ -6,16 +6,20 @@ from utime import sleep, ticks_diff, ticks_ms
 import machine
 import micropython
 
+# callback memory allocation
 micropython.alloc_emergency_exception_buf(100)
+
 button_pin = 22
 button = Pin(button_pin, Pin.IN, Pin.PULL_DOWN)
 
+# button variables
 _DEBOUNCE_MS = 250
 _last_press_ms = 0
 _start_requested = False
 _running = False
 
 
+# deeper logic to run outside of callback
 def _on_button_press_scheduled(_):
     global _running, _start_requested
     if _running:
@@ -26,6 +30,7 @@ def _on_button_press_scheduled(_):
         _start_requested = True
 
 
+# interrupt handler for button, with debouncing
 def _on_button_irq(_pin):
     global _last_press_ms
     now = ticks_ms()
@@ -35,6 +40,7 @@ def _on_button_irq(_pin):
     micropython.schedule(_on_button_press_scheduled, 0)
 
 
+# set up interrupt
 button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 
 # from netlog import UDPLogger, wlan_connect
@@ -43,7 +49,7 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 # wlan_connect("Eduroam Never Works", "iNeedWifi")
 # log = UDPLogger("10.29.50.253", 9000)
 
-#Set up distance sensors
+# Set up distance sensors
 i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
 tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
 tof.begin()
@@ -167,6 +173,7 @@ def drive_forward(time):
     motor3.off()
     motor4.off()
 
+
 def reverse(time):
     motor3.Reverse()
     motor4.Reverse()
@@ -261,9 +268,10 @@ def read_reel():
     yellow_led.value(1)
     return 3
 
+
 # Look for empty slots in the rack
 def find_empty(rack):
-    for position in range(1,7):
+    for position in range(1, 7):
         if rack == 0 or rack == 3:
             tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
             if tof.is_data_ready() == True:
@@ -275,24 +283,26 @@ def find_empty(rack):
             inst = "STR"
         if dist > 200:
             return position
-        drive_forward(time_constant*0.2)
+        drive_forward(time_constant * 0.2)
         navigate(inst)
         position += 1
     return position
 
+
 # Lower arm and drive at reel to pick it up then grab it (servo positions are nominal)
 def pick_reel():
     servo1.duty_u16(2000)
-    drive_forward(time_constant*0.5)
+    drive_forward(time_constant * 0.5)
     servo2.duty_u16(2000)
+
 
 # Place the reel by driving up to the rack (does not follow line because there is nowhere to stop - could fix with loop)
 def place_reel(rack):
     if rack_location == 0 or rack_location == 3:
-        turn_left(time_constant*0.5)
+        turn_left(time_constant * 0.5)
     else:
-        turn_right(time_constant*0.5)
-    
+        turn_right(time_constant * 0.5)
+
     drive_forward(time_constant)
     servo2.duty_u16(1500)
     servo1.duty_u16(1500)
@@ -304,9 +314,9 @@ def place_reel(rack):
 
     reverse(time_constant)
     if rack_location == 0 or rack_location == 3:
-        turn_left(time_constant*0.5)
+        turn_left(time_constant * 0.5)
     else:
-        turn_right(time_constant*0.5)
+        turn_right(time_constant * 0.5)
 
 
 # LT - left at T junction
@@ -338,17 +348,78 @@ routes_to_racks = [
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "R", "R", "STL"],
         ["SR", "STR"],
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "R", "L", "L", "STR"],
-        ["R", "SR", "SR", "SR", "L", "STL"],],
+        ["R", "SR", "SR", "SR", "L", "STL"],
+    ],
     [
-        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","R","R","STL",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "R",
+            "R",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "R", "STR"],
-        ["L","R","SR","SR","SR","SR","SR","SR","SR","R","R","L","L","STR",],
+        [
+            "L",
+            "R",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "SR",
+            "R",
+            "R",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "SR", "SR", "L", "STL"],
     ],
     [
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","R","R","STL",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "L",
+            "L",
+            "R",
+            "R",
+            "STL",
+        ],
         ["L", "SL", "SL", "R", "STR"],
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","L","L","L","L","STR",],
+        [
+            "R",
+            "R",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "SL",
+            "L",
+            "L",
+            "L",
+            "L",
+            "STR",
+        ],
         ["R", "L", "STL"],
     ],
     [
@@ -390,18 +461,19 @@ routes_to_bays = [
 # main loop
 
 while True:
+    # wait for button
     if _start_requested and not _running:
         _start_requested = False
         _running = True
         print("start")
-
+        # exit starting box
         drive_forward(time_constant)
 
         navigate(start_route)
         while True:
-            pick_reel() 
+            pick_reel()
             rack_location = read_reel()
-            reverse(time_constant*0.5)
+            reverse(time_constant * 0.5)
             rotate_left(time_constant)
 
             navigate(routes_to_racks[bay][rack_location])
@@ -409,16 +481,16 @@ while True:
             num_steps_to_backtrack = find_empty(rack_location)
 
             place_reel(rack_location)
-            
+
             for i in range(num_steps_to_backtrack):
-                drive_forward(time_constant*0.2)
+                drive_forward(time_constant * 0.2)
                 if rack_location == 0 or rack_location == 3:
                     navigate("SR")
                 else:
                     navigate("SL")
             bay = (bay + 1) % 4
             navigate(routes_to_bays[rack_location][bay])
-            
+
     sleep(0.05)
 
 # testing navigation
