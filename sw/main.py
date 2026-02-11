@@ -68,10 +68,10 @@ line_sensor3 = Pin(17, Pin.IN, Pin.PULL_DOWN)
 line_sensor4 = Pin(16, Pin.IN, Pin.PULL_DOWN)
 
 # Set up LEDs
-blue_led = Pin(10, Pin.OUT)
-green_led = Pin(11, Pin.OUT)
-red_led = Pin(12, Pin.OUT)
-yellow_led = Pin(14, Pin.OUT)
+blue_led = Pin(14, Pin.OUT)
+green_led = Pin(12, Pin.OUT)
+red_led = Pin(11, Pin.OUT)
+yellow_led = Pin(10, Pin.OUT)
 
 # Set up ADC (for measuring reels)
 adc_pin = 28
