@@ -50,12 +50,12 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 # log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
-i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-tof.begin()
-vl53l0 = VL53L0X(i2c_bus)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+# tof.begin()
+# vl53l0 = VL53L0X(i2c_bus)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -160,7 +160,7 @@ def rotate_right(time):
     motor3.Forward()
     motor4.Reverse()
     sleep(time)
-    while not line_sensor3.value():
+    while not line_sensor2.value():
         continue
     motor3.off()
     motor4.off()
@@ -216,11 +216,11 @@ def navigate(route):
                     success = True
             elif inst == "L":
                 if junc == "L":
-                    turn_left(time_constant * 0.5)
+                    rotate_left(time_constant * 0.5)
                     success = True
             elif inst == "R":
                 if junc == "R":
-                    turn_right(time_constant * 0.5)
+                    rotate_right(time_constant * 0.5)
                     success = True
             elif inst == "STL":
                 if junc == "L":
@@ -270,23 +270,23 @@ def read_reel():
 
 
 # Look for empty slots in the rack
-def find_empty(rack):
-    for position in range(1, 7):
-        if rack == 0 or rack == 3:
-            tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
-            if tof.is_data_ready() == True:
-                dist = tof.get_distance_mm()
-            inst = "STL"
-        else:
-            vl53l0.start()
-            dist = vl53l0.read()
-            inst = "STR"
-        if dist > 200:
-            return position
-        drive_forward(time_constant * 0.2)
-        navigate(inst)
-        position += 1
-    return position
+# def find_empty(rack):
+#     for position in range(1, 7):
+#         if rack == 0 or rack == 3:
+#             tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
+#             if tof.is_data_ready() == True:
+#                 dist = tof.get_distance_mm()
+#             inst = "STL"
+#         else:
+#             vl53l0.start()
+#             dist = vl53l0.read()
+#             inst = "STR"
+#         if dist > 200:
+#             return position
+#         drive_forward(time_constant * 0.2)
+#         navigate(inst)
+#         position += 1
+#     return position
 
 
 def lift():
@@ -314,27 +314,27 @@ def pick_reel():
 
 
 # Place the reel by driving up to the rack (does not follow line because there is nowhere to stop - could fix with loop)
-def place_reel(rack):
-    if rack_location == 0 or rack_location == 3:
-        turn_left(time_constant * 0.5)
-    else:
-        turn_right(time_constant * 0.5)
+# def place_reel(rack):
+#     if rack_location == 0 or rack_location == 3:
+#         turn_left(time_constant * 0.5)
+#     else:
+#         turn_right(time_constant * 0.5)
 
-    drive_forward(time_constant)
+#     drive_forward(time_constant)
 
-    open()
-    lower()
+#     open()
+#     lower()
 
-    green_led.value(0)
-    yellow_led.value(0)
-    red_led.value(0)
-    blue_led.value(0)
+#     green_led.value(0)
+#     yellow_led.value(0)
+#     red_led.value(0)
+#     blue_led.value(0)
 
-    reverse(time_constant)
-    if rack_location == 0 or rack_location == 3:
-        turn_left(time_constant * 0.5)
-    else:
-        turn_right(time_constant * 0.5)
+#     reverse(time_constant)
+#     if rack_location == 0 or rack_location == 3:
+#         turn_left(time_constant * 0.5)
+#     else:
+#         turn_right(time_constant * 0.5)
 
 
 # LT - left at T junction
@@ -477,61 +477,61 @@ routes_to_bays = [
 ]
 
 # set up servo locations
-lift()
-open()
+# lift()
+# open()
 
 # main loop
-while True:
-    # wait for button
-    if _start_requested and not _running:
-        _start_requested = False
-        _running = True
-        print("start")
-        # exit starting box
-        drive_forward(time_constant)
-
-        navigate(start_route)
-        while True:
-            pick_reel()
-            rack_location = read_reel()
-            reverse(time_constant * 0.5)
-            rotate_left(time_constant)
-
-            navigate(routes_to_racks[bay][rack_location])
-
-            num_steps_to_backtrack = find_empty(rack_location)
-
-            place_reel(rack_location)
-
-            for i in range(num_steps_to_backtrack):
-                drive_forward(time_constant * 0.2)
-                if rack_location == 0 or rack_location == 3:
-                    navigate("SR")
-                else:
-                    navigate("SL")
-            bay = (bay + 1) % 4
-            navigate(routes_to_bays[rack_location][bay])
-
-    sleep(0.05)
-
-# testing navigation
 # while True:
+#     # wait for button
 #     if _start_requested and not _running:
 #         _start_requested = False
 #         _running = True
 #         print("start")
+#         # exit starting box
 #         drive_forward(time_constant)
 
 #         navigate(start_route)
-#         pick_reel()
-#         rotate_left(time_constant)
+#         while True:
+#             pick_reel()
+#             rack_location = read_reel()
+#             reverse(time_constant * 0.5)
+#             rotate_left(time_constant)
 
-#         navigate(routes_to_racks[0][0])
-#         rotate_left(time_constant)
-#         motor3.Reverse()
-#         motor4.Forward()
-#         navigate(routes_to_bays[[0][1]])
-#         _running = False
-#         print("done")
+#             navigate(routes_to_racks[bay][rack_location])
+
+#             num_steps_to_backtrack = find_empty(rack_location)
+
+#             place_reel(rack_location)
+
+#             for i in range(num_steps_to_backtrack):
+#                 drive_forward(time_constant * 0.2)
+#                 if rack_location == 0 or rack_location == 3:
+#                     navigate("SR")
+#                 else:
+#                     navigate("SL")
+#             bay = (bay + 1) % 4
+#             navigate(routes_to_bays[rack_location][bay])
 
 #     sleep(0.05)
+
+# testing navigation
+while True:
+    if _start_requested and not _running:
+        _start_requested = False
+        _running = True
+        print("start")
+        drive_forward(time_constant*0.5)
+
+        navigate(start_route)
+        pick_reel()
+        rotate_left(time_constant)
+
+        navigate(routes_to_racks[0][0])
+        rotate_left(time_constant)
+        motor3.Reverse()
+        motor4.Forward()
+        navigate(routes_to_bays[[0][1]])
+        _running = False
+        print("done")
+
+    sleep(0.05)
