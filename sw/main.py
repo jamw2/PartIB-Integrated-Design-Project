@@ -129,6 +129,7 @@ def check_junction():
 
 
 def turn_left(time):
+    drive_forward(0.25)
     motor3.off()
     motor4.Forward()
     sleep(time)
@@ -138,6 +139,7 @@ def turn_left(time):
 
 
 def turn_right(time):
+    drive_forward(0.25)
     motor3.Forward()
     motor4.off()
     sleep(time)
@@ -147,8 +149,8 @@ def turn_right(time):
 
 
 def rotate_left(time):
-    motor3.Reverse()
-    motor4.Forward()
+    motor3.Reverse(50)
+    motor4.Forward(50)
     sleep(time)
     while not line_sensor3.value():
         continue
@@ -157,8 +159,8 @@ def rotate_left(time):
 
 
 def rotate_right(time):
-    motor3.Forward()
-    motor4.Reverse()
+    motor3.Forward(50)
+    motor4.Reverse(50)
     sleep(time)
     while not line_sensor2.value():
         continue
@@ -216,11 +218,11 @@ def navigate(route):
                     success = True
             elif inst == "L":
                 if junc == "L":
-                    turn_left(time_constant * 0.5)
+                    turn_left(time_constant * 0.3)
                     success = True
             elif inst == "R":
                 if junc == "R":
-                    turn_right(time_constant * 0.5)
+                    turn_right(time_constant * 0.3)
                     success = True
             elif inst == "STL":
                 if junc == "L":
@@ -520,7 +522,7 @@ while True:
         _start_requested = False
         _running = True
         print("start")
-        drive_forward(time_constant*0.5)
+        drive_forward(time_constant * 0.7)
 
         navigate(start_route)
         pick_reel()
