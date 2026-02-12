@@ -50,12 +50,12 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 # log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
-# i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
-# tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-# tof.begin()
-# vl53l0 = VL53L0X(i2c_bus)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
-# vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
+tof.begin()
+vl53l0 = VL53L0X(i2c_bus)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
+vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -192,8 +192,8 @@ def navigate(route):
         while not success:
             junc = check_junction()
             while junc == False:
-                # if i % 50 == 0:
-                junc = check_junction()
+                if i % 50 == 0:
+                    junc = check_junction()
                 # if junc == "L" or junc == "R":
                 #     drive_forward(time_constant * 0.2)
                 #     junc2 = check_junction()
@@ -272,23 +272,23 @@ def read_reel():
 
 
 # Look for empty slots in the rack
-# def find_empty(rack):
-#     for position in range(1, 7):
-#         if rack == 0 or rack == 3:
-#             tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
-#             if tof.is_data_ready() == True:
-#                 dist = tof.get_distance_mm()
-#             inst = "STL"
-#         else:
-#             vl53l0.start()
-#             dist = vl53l0.read()
-#             inst = "STR"
-#         if dist > 200:
-#             return position
-#         drive_forward(time_constant * 0.2)
-#         navigate(inst)
-#         position += 1
-#     return position
+def find_empty(rack):
+    for position in range(1, 7):
+        if rack == 0 or rack == 3:
+            tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
+            if tof.is_data_ready() == True:
+                dist = tof.get_distance_mm()
+            inst = "STL"
+        else:
+            vl53l0.start()
+            dist = vl53l0.read()
+            inst = "STR"
+        if dist > 200:
+            return position
+        drive_forward(time_constant * 0.2)
+        navigate(inst)
+        position += 1
+    return position
 
 
 def lift():
@@ -506,7 +506,6 @@ routes_to_bays = [
 #             place_reel(rack_location)
 
 #             for i in range(num_steps_to_backtrack):
-#                 drive_forward(time_constant * 0.2)
 #                 if rack_location == 0 or rack_location == 3:
 #                     navigate("SR")
 #                 else:
@@ -529,9 +528,12 @@ while True:
         rotate_left(time_constant)
 
         navigate(routes_to_racks[0][0])
+        num_steps_to_backtrack = find_empty(0)
+        for i in range(num_steps_to_backtrack):
+            navigate("SR")
+
         rotate_left(time_constant)
-        motor3.Reverse()
-        motor4.Forward()
+
         navigate(routes_to_bays[[0][1]])
         _running = False
         print("done")
