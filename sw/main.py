@@ -528,11 +528,12 @@ while True:
         rotate_left(time_constant)
 
         navigate(routes_to_racks[0][0])
+
+        rotate_left(time_constant)
+
         num_steps_to_backtrack = find_empty(0)
         for i in range(num_steps_to_backtrack):
             navigate("SR")
-
-        rotate_left(time_constant)
 
         navigate(routes_to_bays[[0][1]])
         _running = False
