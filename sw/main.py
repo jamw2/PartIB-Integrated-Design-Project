@@ -216,11 +216,11 @@ def navigate(route):
                     success = True
             elif inst == "L":
                 if junc == "L":
-                    rotate_left(time_constant * 0.5)
+                    turn_left(time_constant * 0.5)
                     success = True
             elif inst == "R":
                 if junc == "R":
-                    rotate_right(time_constant * 0.5)
+                    turn_right(time_constant * 0.5)
                     success = True
             elif inst == "STL":
                 if junc == "L":
