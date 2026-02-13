@@ -29,6 +29,6 @@ class UDPLogger:
 
 
 wlan_connect("Eduroam Never Works", "iNeedWifi")
-log = UDPLogger("10.29.50.253", 9000)
+log = UDPLogger("10.11.160.253", 9000)
 log.log("HI")
 print("HI")

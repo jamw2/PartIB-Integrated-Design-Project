@@ -49,10 +49,10 @@ from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8801, DFRobot_TMF870
 
 def test_TMF8x01_get_distance():
     # Both options work
-    i2c_bus = SoftI2C(sda=Pin(20), scl=Pin(21), freq=100000)  # I2C0 on GP8 & GP9
-    # i2c_bus = I2C(id=0, sda=Pin(20), scl=Pin(21), freq=100000)  # I2C0 on GP8 & GP9
+    # i2c_bus = SoftI2C(sda=Pin(20), scl=Pin(21), freq=100000)  # I2C0 on GP8 & GP9
+    i2c_bus = I2C(id=0, sda=Pin(20), scl=Pin(21), freq=100000)  # I2C0 on GP8 & GP9
     print(i2c_bus.scan())  # 65=0x41
-    assert len(i2c_bus.scan()) == 1  # This demo requires exactly one device
+    # assert len(i2c_bus.scan()) == 1  # This demo requires exactly one device
 
     # Set the correct device
     device = "TMF8701"
@@ -66,7 +66,7 @@ def test_TMF8x01_get_distance():
         raise RuntimeError(f"Device {device} not known")
 
     print("Initialising ranging sensor TMF8x01......")
-    while tof.begin() != 0:
+    while (tof.begin() != 0):
         print("   Initialisation failed")
         sleep(0.5)
     print("   Initialisation done.")

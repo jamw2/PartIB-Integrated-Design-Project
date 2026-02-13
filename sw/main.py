@@ -23,7 +23,7 @@ _running = False
 def _on_button_press_scheduled(_):
     global _running, _start_requested
     if _running:
-        print("reset")
+        log.log("reset")
         sleep(0.05)
         machine.reset()
     else:
@@ -43,19 +43,24 @@ def _on_button_irq(_pin):
 # set up interrupt
 button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 
-# from netlog import UDPLogger, wlan_connect
+from netlog import UDPLogger, wlan_connect
 
 
-# wlan_connect("Eduroam Never Works", "iNeedWifi")
-# log = UDPLogger("10.29.50.253", 9000)
+wlan_connect("Eduroam Never Works", "iNeedWifi")
+log = UDPLogger("10.11.160.253", 9000)
 
 # Set up distance sensors
-i2c_bus = SoftI2C(sda=Pin(20), scl=Pin(21), freq=100000)
+i2c_bus = I2C(id=0, sda=Pin(20), scl=Pin(21), freq=100000)
 tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-tof.begin()
+while (tof.begin() != 0):
+    print("   Initialisation failed")
+    sleep(0.5)
+print("   Initialisation done.")
+tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
 vl53l0 = VL53L0X(i2c_bus)
 vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[0], 18)
 vl53l0.set_Vcsel_pulse_period(vl53l0.vcsel_period_type[1], 14)
+vl53l0.start()
 
 # Set up motors
 motor3 = Motor(dirPin=4, PWMPin=5)
@@ -204,7 +209,7 @@ def navigate(route):
             # turn off motors after following the line
             motor3.off()
             motor4.off()
-            print(inst, junc)
+            # log.log(inst, junc)
             # us_val = read_us()
             # log.log(f"{inst}, {junc}, {us_val}")
             # turn left, right or go straight on depending on the instruction
@@ -228,7 +233,7 @@ def navigate(route):
                 if junc == "L":
                     motor3.off()
                     motor4.off()
-                    print("Stopping")
+                    log.log("Stopping")
                     success = True
             elif inst == "STR":
                 if junc == "R":
@@ -257,7 +262,7 @@ def read_reel():
     adc_value = adc.read_u16()
     scaled_voltage = adc_value / 65535
     scaled_voltage = scaled_voltage / 0.72
-    print(f"{adc_value},{scaled_voltage}")
+    log.log(f"{adc_value},{scaled_voltage}")
     if scaled_voltage < 0.1:
         blue_led.value(1)
         return 0
@@ -273,19 +278,17 @@ def read_reel():
 
 # Look for empty slots in the rack
 def find_empty(rack):
-    dist = 300
+    dist = 0
     for position in range(1, 7):
         if rack == 0 or rack == 3:
-            tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
-            sleep(1)
             if tof.is_data_ready() == True:
                 dist = tof.get_distance_mm()
             inst = "STL"
         else:
-            vl53l0.start()
             dist = vl53l0.read()
             inst = "STR"
-        if dist > 200:
+        log.log(str(dist))
+        if dist == 0 or dist > 200:
             return position
         drive_forward(time_constant * 0.2)
         navigate(inst)
@@ -518,11 +521,12 @@ routes_to_bays = [
 #     sleep(0.05)
 
 # testing navigation
+log.log("online")
 while True:
     if _start_requested and not _running:
         _start_requested = False
         _running = True
-        print("start")
+        log.log("start")
         drive_forward(time_constant * 0.7)
 
         navigate(start_route)
@@ -532,7 +536,8 @@ while True:
         navigate(routes_to_racks[0][0])
 
         num_steps_to_backtrack = find_empty(0)
-        
+        log.log(num_steps_to_backtrack)
+
         rotate_left(time_constant)
 
         for i in range(num_steps_to_backtrack):
@@ -540,6 +545,6 @@ while True:
 
         navigate(routes_to_bays[[0][1]])
         _running = False
-        print("done")
+        log.log("done")
 
     sleep(0.05)
