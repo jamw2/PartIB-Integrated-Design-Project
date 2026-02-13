@@ -1,5 +1,5 @@
 from test_motor import Motor
-from machine import ADC, Pin, I2C, PWM
+from machine import ADC, Pin, I2C, PWM, SoftI2C
 from libs.VL53L0X.VL53L0X import VL53L0X
 from libs.DFRobot_TMF8x01.DFRobot_TMF8x01 import DFRobot_TMF8701
 from utime import sleep, ticks_diff, ticks_ms
@@ -50,7 +50,7 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 # log = UDPLogger("10.29.50.253", 9000)
 
 # Set up distance sensors
-i2c_bus = I2C(id=0, sda=Pin(8), scl=Pin(9))
+i2c_bus = SoftI2C(sda=Pin(20), scl=Pin(21), freq=100000)
 tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
 tof.begin()
 vl53l0 = VL53L0X(i2c_bus)
@@ -273,9 +273,11 @@ def read_reel():
 
 # Look for empty slots in the rack
 def find_empty(rack):
+    dist = 300
     for position in range(1, 7):
         if rack == 0 or rack == 3:
             tof.start_measurement(calib_m=tof.eMODE_NO_CALIB, mode=tof.eCOMBINE)
+            sleep(1)
             if tof.is_data_ready() == True:
                 dist = tof.get_distance_mm()
             inst = "STL"
@@ -529,9 +531,10 @@ while True:
 
         navigate(routes_to_racks[0][0])
 
+        num_steps_to_backtrack = find_empty(0)
+        
         rotate_left(time_constant)
 
-        num_steps_to_backtrack = find_empty(0)
         for i in range(num_steps_to_backtrack):
             navigate("SR")
 
