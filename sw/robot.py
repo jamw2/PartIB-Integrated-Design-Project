@@ -206,16 +206,16 @@ class robot:
         return position
 
     def lift(self):
-        self.servo1.duty_u16(int(16000 * 20 / 100))
+        self.servo1.duty_u16(int(16000 * 29 / 100))
 
     def lower(self):
-        self.servo1.duty_u16(int(16000 * 15 / 100))
+        self.servo1.duty_u16(int(16000 * 31 / 100))
 
     def open(self):
-        self.servo2.duty_u16(int(16000 * 15 / 100))
+        self.servo2.duty_u16(int(16000 * 11 / 100))
 
     def close(self):
-        self.servo2.duty_u16(int(16000 * 20 / 100))
+        self.servo2.duty_u16(int(16000 * 14 / 100))
 
     def pick_reel(self):
         self.lower()
