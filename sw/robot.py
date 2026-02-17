@@ -6,8 +6,7 @@ from utime import sleep
 
 
 class robot:
-    def __init__(self, log, time_constant=1):
-        self.log = log
+    def __init__(self,  time_constant=1):
         self.time_constant = time_constant
 
         # Set up distance sensors
@@ -131,10 +130,9 @@ class robot:
             while not success:
                 junc = self.check_junction()
                 while junc is False:
-                    if i % 50 == 0:
-                        junc = self.check_junction()
+                    junc = self.check_junction()
                     self.follow_line()
-                    i += 1
+                print(inst, junc)
                 self.motor3.off()
                 self.motor4.off()
                 if inst == "SL":
@@ -143,6 +141,9 @@ class robot:
                         success = True
                 elif inst == "SR":
                     if junc == "R":
+                        self.motor3.off()
+                        self.motor4.off()
+                        sleep(0.2)
                         self.drive_forward(self.time_constant * 0.2)
                         success = True
                 elif inst == "L":
@@ -157,12 +158,21 @@ class robot:
                     if junc == "L":
                         self.motor3.off()
                         self.motor4.off()
-                        self.log.log("Stopping")
                         success = True
                 elif inst == "STR":
                     if junc == "R":
                         self.motor3.off()
                         self.motor4.off()
+                        success = True
+                elif inst == "RL":
+                    if junc == "L":
+                        self.drive_forward(0.1)
+                        self.rotate_left(self.time_constant*0.3)
+                        success = True
+                elif inst == "RR":
+                    if junc == "R":
+                        self.drive_forward(0.1)
+                        self.rotate_right(self.time_constant*0.3)
                         success = True
                 if not success:
                     self.drive_forward(0.1)
@@ -174,7 +184,6 @@ class robot:
         adc_value = self.adc.read_u16()
         scaled_voltage = adc_value / 65535
         scaled_voltage = scaled_voltage / 0.72
-        self.log.log(f"{adc_value},{scaled_voltage}")
         if scaled_voltage < 0.1:
             self.blue_led.value(1)
             return 0
@@ -197,7 +206,6 @@ class robot:
             else:
                 dist = self.vl53l0.read()
                 inst = "STR"
-            self.log.log(str(dist))
             if dist == 0 or dist > 200:
                 return position
             self.drive_forward(self.time_constant * 0.2)

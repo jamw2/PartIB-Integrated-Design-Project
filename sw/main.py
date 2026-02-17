@@ -2,7 +2,6 @@ from machine import Pin
 from utime import sleep, ticks_diff, ticks_ms
 import machine
 import micropython
-from netlog import UDPLogger, wlan_connect
 from robot import robot
 from routes import start_route, routes_to_bays, routes_to_racks
 # callback memory allocation
@@ -22,7 +21,6 @@ _running = False
 def _on_button_press_scheduled(_):
     global _running, _start_requested
     if _running:
-        log.log("reset")
         sleep(0.05)
         machine.reset()
     else:
@@ -42,14 +40,11 @@ def _on_button_irq(_pin):
 # set up interrupt
 button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 
-wlan_connect("Eduroam Never Works", "iNeedWifi")
-log = UDPLogger("10.11.160.253", 9000)
-
 # Global variables for the algorithms
 bay = 0
 time_constant = 1  # time to rotate 180 degrees at 100% power
 
-bot = robot(log=log, time_constant=time_constant)
+bot = robot(time_constant=time_constant)
 
 follow_line = bot.follow_line
 check_junction = bot.check_junction
@@ -107,30 +102,29 @@ pick_reel = bot.pick_reel
 #     sleep(0.05)
 
 # testing navigation
-log.log("online")
+lift()
+open()
 while True:
     if _start_requested and not _running:
         _start_requested = False
         _running = True
-        log.log("start")
         drive_forward(time_constant * 0.7)
 
         navigate(start_route)
         pick_reel()
-        rotate_left(time_constant)
+        read_reel()
+        rotate_left(time_constant*1.5)
 
         navigate(routes_to_racks[0][0])
 
         num_steps_to_backtrack = find_empty(0)
-        log.log(num_steps_to_backtrack)
 
-        rotate_left(time_constant)
+        rotate_left(time_constant*1.5)
 
         for i in range(num_steps_to_backtrack):
             navigate("SR")
 
         navigate(routes_to_bays[[0][1]])
         _running = False
-        log.log("done")
 
     sleep(0.05)
