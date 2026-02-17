@@ -148,7 +148,6 @@ class robot:
                     if junc == "R":
                         self.motor3.off()
                         self.motor4.off()
-                        sleep(0.2)
                         self.drive_forward(self.time_constant * 0.2)
                         success = True
                 elif inst == "L":
@@ -180,7 +179,7 @@ class robot:
                         self.rotate_right(self.time_constant*0.3)
                         success = True
                 if not success:
-                    self.drive_forward(0.1)
+                    self.drive_forward(0.02)
 
     def read_us(self):
         return self.us.read_u16()

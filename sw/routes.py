@@ -26,27 +26,27 @@ start_route = ["L", "SL", "L", "STL"]
 # [bay][rack]
 routes_to_racks = [
     [
-        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RR", w"R", "R", "STL"],
+        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RR", "R", "R", "STL"],
         ["SR", "STR"],
-        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "L", "L", "STR"],
+        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RL", "L", "L", "STR"],
         ["R", "SR", "SR", "SR", "L", "STL"],
     ],
     [
-        ["L","R","SR","SR","SR","SR","SR","SR","SL","RR","R","R","R","STL",],
+        ["L", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RR", "R", "R", "STL",],
         ["L", "R", "STR"],
-        ["L","R","SR","SR","SR","SR","SR","SR","SL","RR","R","L","L","STR",],
+        ["L", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RL", "L", "L", "STR"],
         ["R", "SR", "SR", "L", "STL"],
     ],
     [
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","RL","L","R","R","STL"],
+        ["R","R","SL","SL","SL","SL","SL","SL","SL","RL","L", "L","RR","R","R","STL"],
         ["L", "SL", "SL", "R", "STR"],
-        ["R","R","SL","SL","SL","SL","SL","SL","SL","RL","L","L","L","STR",],
+        ["R","R","SL","SL","SL","SL","SL","SL","SL","RL","L","L","RL", "L", "L","STR",],
         ["R", "L", "STL"],
     ],
     [
-        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "RL", "L", "RT", "R", "STL"],
+        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "RL", "L", "L", "RR", "R", "R", "STL"],
         ["L", "SL", "SL", "SL", "RT", "STR"],
-        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "RL", "L", "LT", "L", "STR"],
+        ["SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "RL", "L", "L", "RL", "L", "L", "STR"],
         ["SL", "STL"],
     ],
 ]
