@@ -109,24 +109,24 @@ while True:
     if _start_requested and not _running:
         _start_requested = False
         _running = True
-        # drive_forward(time_constant * 0.8)
+        drive_forward(time_constant * 0.8)
 
-        # lower()
-        # navigate(start_route)
-        # pick_reel()
-        # read_reel()
-        # rotate_left(time_constant*1.5)
+        lower()
+        navigate(start_route)
+        pick_reel()
+        read_reel()
+        rotate_left(time_constant*1.5)
 
-        # navigate(routes_to_racks[0][0])
+        navigate(routes_to_racks[0][0])
 
-        # find_empty(0)
+        find_empty(0)
         
-        # place_reel(0)
+        place_reel(0)
 
         #for i in range(num_steps_to_backtrack):
             #navigate(["SR"])
 
-        navigate(routes_to_bays[0][1])
+        navigate(routes_to_bays[2][1])
         _running = False
 
     sleep(0.05)

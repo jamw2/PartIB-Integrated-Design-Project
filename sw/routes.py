@@ -56,7 +56,7 @@ routes_to_bays = [
     [
         ["RL", "L", "L", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
         ["RL", "L", "L", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "RBR", "STL"],
-        ["RL", "L", "L", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
+        ["RL", "L", "L", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "RBL", "STL"],
         ["RL", "L", "L", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
     ],
     [
@@ -67,8 +67,8 @@ routes_to_bays = [
     ],
     [
         ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
-        ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "R", "STL"],
-        ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
+        ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "RBR", "STL"],
+        ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "RBL", "STL"],
         ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
     ],
     [

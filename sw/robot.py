@@ -180,12 +180,12 @@ class robot:
                         success = True
                 elif inst == "RBR":
                     if junc == "R":
-                        self.drive_forward(0.3)
+                        self.drive_forward(0.6)
                         self.rotate_right(self.time_constant*0.7)
                         success = True
                 elif inst == "RBL":
                     if junc == "L":
-                        self.drive_forward(0.3)
+                        self.drive_forward(0.6)
                         self.rotate_left(self.time_constant*0.7)
                         success = True
                 if not success:
