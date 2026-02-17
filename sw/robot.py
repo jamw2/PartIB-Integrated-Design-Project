@@ -50,6 +50,7 @@ class robot:
         self.servo2 = PWM(Pin(15))  # level 15 open, 20 closed
         self.servo2.freq(50)
 
+    # bouncing between inner edges
     def follow_line(self):
         sensor2 = self.line_sensor2.value()
         sensor3 = self.line_sensor3.value()
@@ -59,6 +60,7 @@ class robot:
         elif not sensor2:
             self.motor4.Forward(50)
             self.motor3.Forward()
+        # search for line
         else:
             self.motor3.Forward(50)
             self.motor4.Forward()
@@ -72,6 +74,7 @@ class robot:
             return "R"
         return False
 
+    # turn pivoting on inside wheel
     def turn_left(self, time):
         self.drive_forward(0.25)
         self.motor3.off()
@@ -90,6 +93,7 @@ class robot:
             continue
         self.motor3.off()
 
+    # rotate around spot
     def rotate_left(self, time):
         self.motor3.Reverse(50)
         self.motor4.Forward(50)
@@ -127,6 +131,7 @@ class robot:
             success = False
             i = 0
 
+            # until next instruction
             while not success:
                 junc = self.check_junction()
                 while junc is False:
@@ -196,6 +201,7 @@ class robot:
         self.yellow_led.value(1)
         return 3
 
+    # scans racks until empty one found
     def find_empty(self, rack):
         dist = 0
         for position in range(1, 7):
