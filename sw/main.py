@@ -113,20 +113,25 @@ while True:
 
         lower()
         navigate(start_route)
-        pick_reel()
-        read_reel()
-        rotate_left(time_constant*1.5)
+        rack = 0
+        while True:
+            if bay % 2 == 0:
+                rack = 0
+            else:
+                rack = 2
+            pick_reel()
+            read_reel()
+            rotate_left(time_constant*1.5)
 
-        navigate(routes_to_racks[0][0])
+            navigate(routes_to_racks[bay][rack])
 
-        find_empty(0)
-        
-        place_reel(0)
+            find_empty(0)
+            
+            place_reel(0)
 
-        #for i in range(num_steps_to_backtrack):
-            #navigate(["SR"])
+            bay = (bay + 1) % 4
+            navigate(routes_to_bays[rack][bay])
 
-        navigate(routes_to_bays[2][1])
-        _running = False
+    bay = (bay + 1) % 4
 
     sleep(0.05)
