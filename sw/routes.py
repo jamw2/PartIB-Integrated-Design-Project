@@ -26,7 +26,7 @@ start_route = ["L", "SL", "L", "STL"]
 # [bay][rack]
 routes_to_racks = [
     [
-        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RR", "R", "R", "STL"],
+        ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "RR", w"R", "R", "STL"],
         ["SR", "STR"],
         ["SR", "SR", "SR", "SR", "SR", "SR", "SR", "SL", "RR", "R", "R", "L", "L", "STR"],
         ["R", "SR", "SR", "SR", "L", "STL"],

@@ -112,6 +112,7 @@ while True:
 
         navigate(start_route)
         pick_reel()
+        sleep(1)
         read_reel()
         rotate_left(time_constant*1.5)
 

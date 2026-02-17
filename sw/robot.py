@@ -236,6 +236,7 @@ class robot:
         self.drive_forward(self.time_constant * 0.5)
         self.lift()
         self.close()
+        sleep(0.5)
 
     def place_reel(self, rack_location):
         if rack_location == 0 or rack_location == 3:
