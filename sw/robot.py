@@ -12,13 +12,11 @@ class robot:
         # Set up distance sensors
         i2c_bus = I2C(id=0, sda=Pin(20), scl=Pin(21), freq=100000)
         self.tof = DFRobot_TMF8701(i2c_bus=i2c_bus)
-        while self.tof.begin() != 0:
+        while (self.tof.begin() != 0):
             print("   Initialisation failed")
             sleep(0.5)
         print("   Initialisation done.")
-        self.tof.start_measurement(
-            calib_m=self.tof.eMODE_NO_CALIB, mode=self.tof.eCOMBINE
-        )
+        self.tof.start_measurement(calib_m=self.tof.eMODE_NO_CALIB, mode=self.tof.eCOMBINE)
         self.vl53l0 = VL53L0X(i2c_bus)
         self.vl53l0.set_Vcsel_pulse_period(self.vl53l0.vcsel_period_type[0], 18)
         self.vl53l0.set_Vcsel_pulse_period(self.vl53l0.vcsel_period_type[1], 14)
@@ -75,8 +73,9 @@ class robot:
         return False
 
     # turn pivoting on inside wheel
-    def turn_left(self, time):
-        self.drive_forward(0.25)
+    def turn_left(self, time, forward = True):
+        if forward:
+            self.drive_forward(0.25)
         self.motor3.off()
         self.motor4.Forward()
         sleep(time)
@@ -84,8 +83,9 @@ class robot:
             continue
         self.motor4.off()
 
-    def turn_right(self, time):
-        self.drive_forward(0.25)
+    def turn_right(self, time, forward = False):
+        if forward:
+            self.drive_forward(0.25)
         self.motor3.Forward()
         self.motor4.off()
         sleep(time)
@@ -170,13 +170,23 @@ class robot:
                         success = True
                 elif inst == "RL":
                     if junc == "L":
-                        self.drive_forward(0.1)
+                        self.drive_forward(0.15)
                         self.rotate_left(self.time_constant*0.3)
                         success = True
                 elif inst == "RR":
                     if junc == "R":
-                        self.drive_forward(0.1)
+                        self.drive_forward(0.15)
                         self.rotate_right(self.time_constant*0.3)
+                        success = True
+                elif inst == "RBR":
+                    if junc == "R":
+                        self.drive_forward(0.3)
+                        self.rotate_right(self.time_constant*0.7)
+                        success = True
+                elif inst == "RBL":
+                    if junc == "L":
+                        self.drive_forward(0.3)
+                        self.rotate_left(self.time_constant*0.7)
                         success = True
                 if not success:
                     self.drive_forward(0.02)
@@ -204,15 +214,22 @@ class robot:
     def find_empty(self, rack):
         dist = 0
         for position in range(1, 7):
+            self.drive_forward(self.time_constant * 0.15)
+            sleep(1)
             if rack == 0 or rack == 3:
-                if self.tof.is_data_ready() is True:
+                if self.tof.is_data_ready() == True:
                     dist = self.tof.get_distance_mm()
-                inst = "STL"
+                inst = ["STL"]
             else:
                 dist = self.vl53l0.read()
-                inst = "STR"
-            if dist == 0 or dist > 200:
-                return position
+                inst = ["STR"]
+            print(dist)
+            if rack == 0 or rack == 3:
+                if dist == 0 or dist > 250:
+                    return position
+            else:
+                if dist == 0 or dist > 225:
+                    return position
             self.drive_forward(self.time_constant * 0.2)
             self.navigate(inst)
             position += 1
@@ -232,18 +249,19 @@ class robot:
 
     def pick_reel(self):
         self.lower()
-        self.drive_forward(self.time_constant * 0.5)
+        self.drive_forward(self.time_constant * 0.45)
         self.lift()
         self.close()
         sleep(0.5)
 
     def place_reel(self, rack_location):
+        self.drive_forward(self.time_constant*0.1)
         if rack_location == 0 or rack_location == 3:
-            self.turn_left(self.time_constant * 0.5)
+            self.turn_left(self.time_constant*0.8, False)
         else:
-            self.turn_right(self.time_constant * 0.5)
+            self.turn_right(self.time_constant*0.8, False)
 
-        self.drive_forward(self.time_constant)
+        self.drive_forward(self.time_constant*0.35)
 
         self.open()
         self.lower()
@@ -253,10 +271,9 @@ class robot:
         self.red_led.value(0)
         self.blue_led.value(0)
 
-        self.reverse(self.time_constant)
+        self.reverse(self.time_constant*0.95)
+        self.lift()
         if rack_location == 0 or rack_location == 3:
-            self.turn_left(self.time_constant * 0.5)
+            self.turn_left(self.time_constant * 1.5, False)
         else:
-            self.turn_right(self.time_constant * 0.5)
-
- 
+            self.turn_right(self.time_constant * 1.5, False)

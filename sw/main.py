@@ -63,6 +63,7 @@ lower = bot.lower
 open = bot.open
 close = bot.close
 pick_reel = bot.pick_reel
+place_reel = bot.place_reel
 
 # set up servo locations
 # lift()
@@ -108,24 +109,24 @@ while True:
     if _start_requested and not _running:
         _start_requested = False
         _running = True
-        drive_forward(time_constant * 0.7)
+        # drive_forward(time_constant * 0.8)
 
-        navigate(start_route)
-        pick_reel()
-        sleep(1)
-        read_reel()
-        rotate_left(time_constant*1.5)
+        # lower()
+        # navigate(start_route)
+        # pick_reel()
+        # read_reel()
+        # rotate_left(time_constant*1.5)
 
-        navigate(routes_to_racks[0][0])
+        # navigate(routes_to_racks[0][0])
 
-        num_steps_to_backtrack = find_empty(0)
+        # find_empty(0)
+        
+        # place_reel(0)
 
-        rotate_left(time_constant*1.5)
+        #for i in range(num_steps_to_backtrack):
+            #navigate(["SR"])
 
-        for i in range(num_steps_to_backtrack):
-            navigate("SR")
-
-        navigate(routes_to_bays[[0][1]])
+        navigate(routes_to_bays[0][1])
         _running = False
 
     sleep(0.05)

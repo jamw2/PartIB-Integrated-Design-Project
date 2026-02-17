@@ -54,10 +54,10 @@ routes_to_racks = [
 # [rack][bay]
 routes_to_bays = [
     [
-        ["L", "L", "RL", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
-        ["L", "L", "RL", "L", "SR", "SR", "SL", "SL", "SL", "SL", "SL", "L", "R", "STL"],
-        ["L", "L", "RR", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
-        ["L", "L", "RR", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
+        ["RL", "L", "L", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
+        ["RL", "L", "L", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "RBR", "STL"],
+        ["RL", "L", "L", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
+        ["RL", "L", "L", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
     ],
     [
         ["SL", "STL"],
@@ -66,10 +66,10 @@ routes_to_bays = [
         ["L", "SR", "SR", "SR", "R", "STL"],
     ],
     [
-        ["R", "R", "RL", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
-        ["R", "R", "RL", "L", "SR", "SR", "SL", "SL", "SL", "SL", "SL", "L", "R", "STL"],
-        ["R", "R", "RR", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
-        ["R", "R", "RR", "R", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
+        ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "STL"],
+        ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "R", "STL"],
+        ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "L", "STL"],
+        ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
     ],
     [
         ["R", "SL", "SL", "SL", "LT", "STL"],
