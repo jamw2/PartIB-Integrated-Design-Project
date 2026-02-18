@@ -70,6 +70,7 @@ routes_to_bays = [
         ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "RBR", "STL"],
         ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "R", "RBL", "STL"],
         ["RR", "R", "R", "RR", "R", "R", "SL", "SR", "SR", "SR", "SR", "SR", "SR", "SR", "STL"],
+        ["RR", "R", "R", "RL", "L", "L", "SL", "SL", "SL", "SL", "SL", "SL", "SL", "L", "SL", "RBR", "STL"]
     ],
     [
         ["R", "SL", "SL", "SL", "LT", "STL"],
@@ -77,4 +78,5 @@ routes_to_bays = [
         ["R", "L", "STL"],
         ["SR", "STL"],
     ],
+
 ]
