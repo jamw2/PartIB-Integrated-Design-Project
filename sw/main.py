@@ -122,7 +122,7 @@ while True:
             pick_reel()
             read_reel()
             rotate_left(time_constant*1.5)
-
+            print(bay,rack)
             navigate(routes_to_racks[bay][rack])
 
             find_empty(0)
@@ -131,7 +131,5 @@ while True:
 
             bay = (bay + 1) % 4
             navigate(routes_to_bays[rack][bay])
-
-    bay = (bay + 1) % 4
 
     sleep(0.05)
