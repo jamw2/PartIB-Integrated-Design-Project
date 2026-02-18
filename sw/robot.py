@@ -194,7 +194,7 @@ class robot:
     def read_us(self):
         return self.us.read_u16()
 
-    def read_reel(self):
+    def read_reel(self, led = 0):
         # adc_value = self.adc.read_u16()
         # scaled_voltage = adc_value / 65535
         # scaled_voltage = scaled_voltage / 0.72
@@ -209,7 +209,10 @@ class robot:
         #     return 2
         # self.yellow_led.value(1)
         # return 3
-        self.blue_led.value(1)
+        if led == 1 or led == 3:
+            self.red_led.value(1)
+        else:    
+            self.blue_led.value(1)
         return 0
 
     # scans racks until empty one found
