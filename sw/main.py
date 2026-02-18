@@ -121,7 +121,10 @@ while True:
                 rack = 2
             pick_reel()
             read_reel()
-            rotate_left(time_constant*1.5)
+            if bay == 0 or bay == 1:
+                rotate_left(time_constant*1.5)
+            else:
+                rotate_right(time_constant*1.5)
             print(bay,rack)
             navigate(routes_to_racks[bay][rack])
 
@@ -131,5 +134,8 @@ while True:
 
             bay += 1
             navigate(routes_to_bays[rack][bay])
+            if bay == 4:
+                drive_forward(time_constant*0.8)
+                machine.reset()
 
     sleep(0.05)
