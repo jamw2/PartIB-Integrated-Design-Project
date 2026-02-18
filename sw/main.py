@@ -3,7 +3,7 @@ from utime import sleep, ticks_diff, ticks_ms
 import machine
 import micropython
 from robot import robot
-from routes import start_route, end_route, routes_to_bays, routes_to_racks
+from routes import start_route, routes_to_bays, routes_to_racks
 # callback memory allocation
 micropython.alloc_emergency_exception_buf(100)
 
@@ -41,6 +41,7 @@ def _on_button_irq(_pin):
 button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 
 # Global variables for the algorithms
+bay = 0
 time_constant = 1  # time to rotate 180 degrees at 100% power
 
 bot = robot(time_constant=time_constant)
@@ -112,8 +113,6 @@ while True:
 
         lower()
         navigate(start_route)
-        colour = 0
-        bay = 0
         rack = 0
         while True:
             if bay % 2 == 0:
@@ -121,22 +120,16 @@ while True:
             else:
                 rack = 2
             pick_reel()
-            read_reel(colour)
+            read_reel()
             rotate_left(time_constant*1.5)
             print(bay,rack)
             navigate(routes_to_racks[bay][rack])
 
-            find_empty(rack)
+            find_empty(0)
             
-            place_reel(rack)
-            colour += 1
+            place_reel(0)
 
-            bay += 1
-            if bay == 2:
-                break
+            bay = (bay + 1) % 4
             navigate(routes_to_bays[rack][bay])
-
-            navigate(end_route)
-            drive_forward(time_constant*0.8)
 
     sleep(0.05)
