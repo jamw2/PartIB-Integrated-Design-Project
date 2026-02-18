@@ -215,7 +215,7 @@ class robot:
     # scans racks until empty one found
     def find_empty(self, rack):
         dist = 0
-        for position in range(1, 7):
+        for position in range(1, 6):
             self.drive_forward(self.time_constant * 0.15)
             sleep(1)
             if rack == 0 or rack == 3:
@@ -235,6 +235,7 @@ class robot:
             self.drive_forward(self.time_constant * 0.2)
             self.navigate(inst)
             position += 1
+
         return position
 
     def lift(self):

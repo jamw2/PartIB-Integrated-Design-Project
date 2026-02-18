@@ -128,11 +128,11 @@ while True:
             print(bay,rack)
             navigate(routes_to_racks[bay][rack])
 
-            find_empty(0)
+            find_empty(rack)
             
-            place_reel(0)
+            place_reel(rack)
 
-            bay = (bay + 1) % 4
+            bay += 1
             navigate(routes_to_bays[rack][bay])
             if bay == 4:
                 drive_forward(time_constant*0.8)
