@@ -195,20 +195,22 @@ class robot:
         return self.us.read_u16()
 
     def read_reel(self):
-        adc_value = self.adc.read_u16()
-        scaled_voltage = adc_value / 65535
-        scaled_voltage = scaled_voltage / 0.72
-        if scaled_voltage < 0.1:
-            self.blue_led.value(1)
-            return 0
-        elif scaled_voltage < 0.45:
-            self.green_led.value(1)
-            return 1
-        elif scaled_voltage < 0.94:
-            self.red_led.value(1)
-            return 2
-        self.yellow_led.value(1)
-        return 3
+        # adc_value = self.adc.read_u16()
+        # scaled_voltage = adc_value / 65535
+        # scaled_voltage = scaled_voltage / 0.72
+        # if scaled_voltage < 0.1:
+        #     self.blue_led.value(1)
+        #     return 0
+        # elif scaled_voltage < 0.45:
+        #     self.green_led.value(1)
+        #     return 1
+        # elif scaled_voltage < 0.94:
+        #     self.red_led.value(1)
+        #     return 2
+        # self.yellow_led.value(1)
+        # return 3
+        self.blue_led.value(1)
+        return 0
 
     # scans racks until empty one found
     def find_empty(self, rack):
