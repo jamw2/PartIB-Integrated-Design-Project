@@ -44,6 +44,7 @@ button.irq(trigger=Pin.IRQ_RISING, handler=_on_button_irq)
 bay = 0
 time_constant = 1  # time to rotate 180 degrees at 100% power
 
+# set up functions from robot.py
 bot = robot(time_constant=time_constant)
 
 follow_line = bot.follow_line
@@ -69,7 +70,8 @@ place_reel = bot.place_reel
 # lift()
 # open()
 
-# main loop
+# main loop for a fully functioning robot
+
 # while True:
 #     # wait for button
 #     if _start_requested and not _running:
@@ -102,18 +104,21 @@ place_reel = bot.place_reel
 
 #     sleep(0.05)
 
-# testing navigation
+# main loop for a partially functioning robot such as ours
 lift()
 open()
 while True:
+    # deal with the button
     if _start_requested and not _running:
         _start_requested = False
         _running = True
         drive_forward(time_constant * 0.8)
 
         lower()
+        # go to first bay
         navigate(start_route)
         rack = 0
+        # select where to take the reel essentially randomly
         while True:
             if bay % 2 == 0:
                 rack = 0
@@ -121,19 +126,24 @@ while True:
                 rack = 2
             pick_reel()
             read_reel()
+            # leave the bay without crashing into the wall
             if bay == 0 or bay == 1:
                 rotate_left(time_constant*1.5)
             else:
                 rotate_right(time_constant*1.5)
             print(bay,rack)
+            # to go a rack
             navigate(routes_to_racks[bay][rack])
 
+            # put the reel down
             find_empty(rack)
             
             place_reel(rack)
 
+            # go to the next bay
             bay += 1
             navigate(routes_to_bays[rack][bay])
+            # if done four reels go back to the start zone
             if bay == 4:
                 drive_forward(time_constant*0.8)
                 machine.reset()

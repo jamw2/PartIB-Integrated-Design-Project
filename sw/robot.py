@@ -63,6 +63,7 @@ class robot:
             self.motor3.Forward(50)
             self.motor4.Forward()
 
+    # see if there are lines to the left or right
     def check_junction(self):
         sensor1 = self.line_sensor1.value()
         sensor4 = self.line_sensor4.value()
@@ -127,6 +128,7 @@ class robot:
         self.motor4.off()
 
     def navigate(self, route):
+        # loop through instruction list provided
         for inst in route:
             success = False
             i = 0
@@ -134,12 +136,14 @@ class robot:
             # until next instruction
             while not success:
                 junc = self.check_junction()
+                # follow the line until a junction is found
                 while junc is False:
                     junc = self.check_junction()
                     self.follow_line()
                 print(inst, junc)
                 self.motor3.off()
                 self.motor4.off()
+                # when a junction is found take action based on the instruction, unless the wrong junction has been found
                 if inst == "SL":
                     if junc == "L":
                         self.drive_forward(self.time_constant * 0.2)
@@ -191,9 +195,11 @@ class robot:
                 if not success:
                     self.drive_forward(0.02)
 
+    # read the ultrasonic sensor (not used)
     def read_us(self):
         return self.us.read_u16()
 
+    # read the reel (not used due to static discharge after driving)
     def read_reel(self):
         # adc_value = self.adc.read_u16()
         # scaled_voltage = adc_value / 65535
@@ -238,6 +244,7 @@ class robot:
 
         return position
 
+    # Code for servo lifting and grabbing
     def lift(self):
         self.servo1.duty_u16(int(16000 * 29 / 100))
 
@@ -257,6 +264,7 @@ class robot:
         self.close()
         sleep(0.5)
 
+    # place a reel in a rack
     def place_reel(self, rack_location):
         self.drive_forward(self.time_constant*0.1)
         if rack_location == 0 or rack_location == 3:

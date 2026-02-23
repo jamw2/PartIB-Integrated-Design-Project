@@ -10,6 +10,8 @@
 # STR - stop at a branch on the right
 # RL - rotate left
 # RR - rotate right
+# RBL - turn into a bay on the left
+# RBE - turn into a bay on the right
 
 # bay1 = 0
 # bay2 = 1
